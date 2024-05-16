@@ -1,0 +1,26 @@
+Prompt for AI Decision on Google Stock:
+Context:
+Current Date: [Insert Date]
+Google Stock Price: [Insert Current Price]
+Recent News: [Summarize any relevant news about Google, including earnings reports, product launches, regulatory changes, etc.]
+Market Sentiment: [Describe the overall sentiment of the market, e.g., bullish, bearish, neutral]
+Your Investment Goals: [State your investment goals, e.g., long-term growth, short-term profits, dividend income]
+Risk Tolerance: [Describe your risk tolerance, e.g., high, medium, low]
+Current Portfolio: [Briefly describe your current portfolio composition and its performance]
+Question:
+Based on the provided context, would you recommend buying, selling, or holding Google stock? Explain your reasoning, considering factors like Google's financial performance, future prospects, market conditions, and your individual investment goals and risk tolerance.
+Additional Notes:
+Be specific: Provide concrete data and details to support the context.
+Be clear: State your investment goals and risk tolerance clearly.
+Keep it concise: Avoid unnecessary details and focus on the key information relevant to the decision.
+Example:
+Context:
+Current Date: March 15, 2023
+Google Stock Price: $100
+Recent News: Google reported strong Q4 2022 earnings, exceeding analyst expectations.
+Market Sentiment: Bullish
+Your Investment Goals: Long-term growth
+Risk Tolerance: Medium
+Current Portfolio: 60% stocks, 40% bonds, diversified across various sectors.
+Question:
+Based on the provided context, would you recommend buying, selling, or holding Google stock? Explain your reasoning, considering factors like Google's financial performance, future prospects, market conditions, and your individual investment goals and risk tolerance.

@@ -7,6 +7,8 @@ Variables:
 !<INPUT 5>! -- Risk, e.g., high, medium, low
 !<INPUT 6>! -- Target name
 !<INPUT 7>! -- History trading data
+!<INPUT 8>! -- maximum purchasable volume
+
 
 <commentblockmarker>###</commentblockmarker>
 ## Role:
@@ -27,18 +29,21 @@ Summary Of Recent Month's Operations: Has incurred losses in 10 out of last 10 t
 ## Goal:
 Based on the provided context, you should recommend buying, selling, or holding? Explain your reasoning, considering factors like future prospects, market conditions, and individual investment goals and risk tolerance.
 
+## Context:
+1. with your account money restriction, for !<INPUT 6>!, you maximum exchange volume is !<INPUT 8>!
+
 ## Output Restriction:
 1. the output should be in json format
 2. the output contains three fields:
     i. 'action', which mapping to 'buy' or 'sell' or 'hold'
-    ii. 'amount', the amount shares for action, should be a number
+    ii. 'volume', the volume for action, should be a number, and smaller than maximum purchasable volume
     iii. 'stop_loss'
     iv. 'take_profit'
     v. 'reasons', a string list, which contains the reason why you take this action
 Here is an output example:
 {
     "action": "buy",
-    "amount": 100,
+    "volume": 100,
     "stop_loss": 7000,
     "take_profit": 7100,
     "reason": ["the price is too low"]

@@ -1,6 +1,10 @@
-from prompt import get_action, generate_prompt
+import json
 
-if __name__ == '__main__':
+from prompt import get_action, generate_prompt
+import re
+from user import Action, query_user
+
+def analyze(current_price, goods, max_shares_num):
     data = [
         {
             "date": "2024-04-10",
@@ -46,10 +50,34 @@ if __name__ == '__main__':
     history = ''
     for item in data:
         history += f"date: {item['date']}, open: {item['open']}, high: {item['high']}, low: {item['low']}, close: {item['close']}, volume: {item['volume']}\n"
-    curr_input = ["2024-04-17", 7361, "gold create new history high price",
-                  "bullish", "short-term profits", "high", "silver", history]
+    curr_input = ["2024-04-17", current_price, "gold create new history high price",
+                  "bullish", "short-term profits", "high", goods, history, max_shares_num]
     prompt_lib_file = "prompt_template/ask_action.txt"
     prompt = generate_prompt(curr_input, prompt_lib_file)
-    print(prompt)
     res = get_action(prompt)
-    print(res)
+    matches = re.findall(r'\{([^{}]*)\}', res)
+    json_data = json.loads("{" + matches[0] + "}")
+    json_data["origin_response"] = res
+    return Action(**json_data)
+
+
+def do_action():
+    goods = "silver"
+    # get user available money
+    # TODO 持有仓位，则使用不同的prompt
+
+    # 空仓，则使用买入，卖出，观察三种操作的某一个
+    user = query_user()
+    current_price = 7361
+    max_shares_num = user.money // current_price
+    if max_shares_num < 1:
+        print("Not enough money")
+        # TODO 钱不够了，是否要平一些
+        return
+
+    action = analyze(current_price, goods, max_shares_num)
+    user.action(action, goods, current_price)
+
+
+if __name__ == '__main__':
+    do_action()

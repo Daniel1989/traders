@@ -32,14 +32,6 @@ def generate_prompt(curr_input, prompt_lib_file):
 
 
 def get_action(prompt: str):
-    """
-    :param prompt:
-    :return: {
-        action: 'buy'|'sell',
-        amount: number,
-        reason: str[]
-    }
-    """
     data = {
         "model": "llama3",
         "stream": False,

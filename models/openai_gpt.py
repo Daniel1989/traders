@@ -11,6 +11,7 @@ class OpenaiModel(LlmClient):
     def __init__(self, name):
         super().__init__(name)
         self.client = OpenAI(api_key=openai_api_key, base_url="https://api.chatanywhere.tech/v1")
+        self.is_chinese = False
 
     def do_prompt(self, prompt_text, system_prompt=None) -> str:
         result = self.client.chat.completions.create(

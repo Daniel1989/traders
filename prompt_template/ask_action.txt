@@ -24,7 +24,7 @@ Recent News: !<INPUT 2>!
 Market Sentiment: !<INPUT 3>!
 Investment Goals: !<INPUT 4>!
 Risk Tolerance: !<INPUT 5>!
-Summary Of Recent Month's Operations: Has incurred losses in 10 out of last 10 transactions, resulting in a total loss of $100,000.
+Summary Of Recent Month's Operations: Has incurred losses in 10 out of last 10 transactions, resulting in a total loss of 100,000 yuan.
 
 ## Goal:
 Based on the provided context, you should recommend buying, selling, or holding? Explain your reasoning, considering factors like future prospects, market conditions, and individual investment goals and risk tolerance.
@@ -34,7 +34,7 @@ Based on the provided context, you should recommend buying, selling, or holding?
 
 ## Output Restriction:
 1. the output should be in json format
-2. the output contains three fields:
+2. the output contains five fields:
     i. 'action', which mapping to 'buy' or 'sell' or 'hold'
     ii. 'volume', the volume for action, should be a number, and smaller than maximum purchasable volume
     iii. 'stop_loss'

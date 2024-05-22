@@ -5,9 +5,13 @@ import re
 from user import Action, query_user
 from models.openai_gpt import OpenaiModel
 from models.ollama import Ollama
+from models.google_gpt import GoogleModel
+from models.baidu import BaiduModal
 
 # llm = OpenaiModel("gpt-3.5-turbo")
-llm = Ollama("llama3")
+# llm = Ollama("llama3")
+# llm = GoogleModel("gemini-1.5-pro-latest")
+llm = BaiduModal("ernie-speed-128k")
 
 
 def analyze(current_price, goods, max_shares_num):
@@ -56,10 +60,17 @@ def analyze(current_price, goods, max_shares_num):
     history = ''
     for item in data:
         history += f"date: {item['date']}, open: {item['open']}, high: {item['high']}, low: {item['low']}, close: {item['close']}, volume: {item['volume']}\n"
-    curr_input = ["2024-04-17", current_price, "gold create new history high price",
-                  "bullish", "short-term profits", "high", goods, history, max_shares_num]
-    prompt_lib_file = "prompt_template/ask_action.txt"
-    prompt = generate_prompt(curr_input, prompt_lib_file)
+
+    if llm.is_chinese:
+        curr_input = ["2024-04-17", current_price, "黄金创造历史新高",
+                      "牛市", "短期收益", "高", goods, history, max_shares_num]
+        prompt_lib_file = "prompt_template/ask_action_cn.txt"
+        prompt = generate_prompt(curr_input, prompt_lib_file)
+    else:
+        curr_input = ["2024-04-17", current_price, "gold create new history high price",
+                      "bullish", "short-term profits", "high", goods, history, max_shares_num]
+        prompt_lib_file = "prompt_template/ask_action.txt"
+        prompt = generate_prompt(curr_input, prompt_lib_file)
     res = llm.do_prompt(prompt)
     print(res)
     matches = re.findall(r'\{([^{}]*)\}', res)

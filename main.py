@@ -7,12 +7,16 @@ from models.openai_gpt import OpenaiModel
 from models.ollama import Ollama
 from models.google_gpt import GoogleModel
 from models.baidu import BaiduModal
+from models.ali import AliModel
+from models.kimi import KimiModal
+from models.deepseek import DeepseekModal
 
 # llm = OpenaiModel("gpt-3.5-turbo")
 # llm = Ollama("llama3")
 # llm = GoogleModel("gemini-1.5-pro-latest")
-llm = BaiduModal("ernie-speed-128k")
-
+# llm = BaiduModal("ernie-speed-128k")
+# llm = KimiModal("moonshot-v1-128k")
+llm = DeepseekModal("deepseek-chat")
 
 def analyze(current_price, goods, max_shares_num):
     data = [
@@ -80,7 +84,10 @@ def analyze(current_price, goods, max_shares_num):
 
 
 def do_action():
-    goods = "silver"
+    if llm.is_chinese:
+        goods = "白银"
+    else:
+        goods = "silver"
     # get user available money
     # TODO 持有仓位，则使用不同的prompt
 

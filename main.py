@@ -1,8 +1,14 @@
 import json
 
-from prompt import get_action, generate_prompt
+from prompt import generate_prompt
 import re
 from user import Action, query_user
+from models.openai_gpt import OpenaiModel
+from models.ollama import Ollama
+
+# llm = OpenaiModel("gpt-3.5-turbo")
+llm = Ollama("llama3")
+
 
 def analyze(current_price, goods, max_shares_num):
     data = [
@@ -54,7 +60,8 @@ def analyze(current_price, goods, max_shares_num):
                   "bullish", "short-term profits", "high", goods, history, max_shares_num]
     prompt_lib_file = "prompt_template/ask_action.txt"
     prompt = generate_prompt(curr_input, prompt_lib_file)
-    res = get_action(prompt)
+    res = llm.do_prompt(prompt)
+    print(res)
     matches = re.findall(r'\{([^{}]*)\}', res)
     json_data = json.loads("{" + matches[0] + "}")
     json_data["origin_response"] = res

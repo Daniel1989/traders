@@ -30,21 +30,3 @@ def generate_prompt(curr_input, prompt_lib_file):
         prompt = prompt.split("<commentblockmarker>###</commentblockmarker>")[1]
     return prompt.strip()
 
-
-def get_action(prompt: str):
-    data = {
-        "model": "llama3",
-        "stream": False,
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        "options": {
-            "temperature": 0
-        }
-    }
-    url = "http://localhost:11434/api/chat"
-    response = requests.post(url, json=data)
-    return json.loads(response.text)["message"]["content"]

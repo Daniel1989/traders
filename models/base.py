@@ -6,5 +6,5 @@ class LlmClient:
         result = self.do_prompt(prompt_text, system_prompt)
         return result
 
-    def do_prompt(self, prompt_text, system_prompt=None):
+    def do_prompt(self, prompt_text, system_prompt=None) -> str:
         raise Exception("Not implemented")

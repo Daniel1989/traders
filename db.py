@@ -15,7 +15,6 @@ def update_user(user_id, name, money, status):
     conn = sqlite3.connect(table_name)
     cursor = conn.cursor()
     sql_str = 'UPDATE users SET name = "' + name + '", money = ' + str(money) + ', status = "' + status + '" WHERE id = ' + str(user_id)
-    print(sql_str)
     cursor.execute(sql_str)
     conn.commit()
     conn.close()

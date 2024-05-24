@@ -10,6 +10,7 @@ from models.baidu import BaiduModal
 from models.ali import AliModel
 from models.kimi import KimiModal
 from models.deepseek import DeepseekModal
+# from models.coze import CozeModal 不可用
 
 # llm = OpenaiModel("gpt-3.5-turbo")
 # llm = Ollama("llama3")

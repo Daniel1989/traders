@@ -5,7 +5,8 @@ import google.generativeai as genai
 
 load_dotenv()
 genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
-
+os.environ["http_proxy"] = "http://127.0.0.1:1087"
+os.environ["https_proxy"] = "http://127.0.0.1:1087"
 # for m in genai.list_models():
 #     print(m.name)
 '''

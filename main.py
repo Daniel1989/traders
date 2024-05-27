@@ -10,15 +10,21 @@ from models.baidu import BaiduModal
 from models.ali import AliModel
 from models.kimi import KimiModal
 from models.deepseek import DeepseekModal
-# from models.coze import CozeModal 不可用
+from models.coze import CozeModal
+from models.cn_coze import CnCozeModal
+from models.hunyuan import HunyuanModal
+from models.xunfei import XunfeiModel
 
 # llm = OpenaiModel("gpt-3.5-turbo")
 # llm = Ollama("llama3")
 # llm = GoogleModel("gemini-1.5-pro-latest")
 # llm = BaiduModal("ernie-speed-128k")
 # llm = KimiModal("moonshot-v1-128k")
-llm = DeepseekModal("deepseek-chat")
-
+# llm = DeepseekModal("deepseek-chat")
+# llm = CozeModal("") # use gpt4
+# llm = CnCozeModal("") # totally free
+# llm = HunyuanModal("hunyuan-lite") # hunyuan-pro
+llm = XunfeiModel("")
 def analyze(current_price, goods, max_shares_num):
     data = [
         {

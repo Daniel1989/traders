@@ -1,10 +1,27 @@
 import sqlite3
+from peewee import *
 
-table_name = 'traders.db'
+db_name = 'traders.db'
+db = SqliteDatabase(db_name)
+
+
+class BaseModel(Model):
+    class Meta:
+        database = db
+
+
+class UserStatus(BaseModel):
+    user_id = CharField()
+    goods = CharField()
+    volume = IntegerField()
+    price = FloatField()
+    type = CharField()
+    stop_loss = FloatField()
+    take_profit = FloatField()
 
 
 def query_users():
-    conn = sqlite3.connect(table_name)
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users")
     data = cursor.fetchall()[0]
@@ -12,16 +29,17 @@ def query_users():
 
 
 def update_user(user_id, name, money, status):
-    conn = sqlite3.connect(table_name)
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
-    sql_str = 'UPDATE users SET name = "' + name + '", money = ' + str(money) + ', status = "' + status + '" WHERE id = ' + str(user_id)
+    sql_str = 'UPDATE users SET name = "' + name + '", money = ' + str(
+        money) + ', status = "' + status + '" WHERE id = ' + str(user_id)
     cursor.execute(sql_str)
     conn.commit()
     conn.close()
 
 
 def add_record(user_id, goods, volume, price, type, reasons, origin_response):
-    conn = sqlite3.connect(table_name)
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO records (user_id, goods, volume, price, type, reasons, origin_response) VALUES (?, ?, "
                    "?, ?, ?, ?, ?)",
@@ -30,9 +48,8 @@ def add_record(user_id, goods, volume, price, type, reasons, origin_response):
     conn.close()
 
 
-
 def init_db():
-    conn = sqlite3.connect(table_name)
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS users
                     (id INTEGER PRIMARY KEY, name TEXT UNIQUE, money INTEGER, status TEXT)''')
@@ -48,12 +65,15 @@ def init_db():
 
 
 def alert_table():
-    conn = sqlite3.connect(table_name)
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     cursor.execute('''ALTER TABLE user_status RENAME COLUMN amount TO volume''')
     conn.commit()
     conn.close()
 
+
+db.connect()
+db.create_tables([UserStatus])
 
 if __name__ == '__main__':
     # init_db()

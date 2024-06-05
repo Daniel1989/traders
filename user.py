@@ -1,4 +1,4 @@
-from db import add_record, query_users, update_user
+from db import add_record, query_users, update_user, UserStatus
 
 
 def query_user():
@@ -7,8 +7,28 @@ def query_user():
     return user
 
 
+def query_user_status_by_goods(user_id, goods):
+    status = UserStatus.select().where(UserStatus.user_id.in_([user_id]) & UserStatus.goods.in_([goods]))
+    result = {
+        "buy": 0,
+        "sell": 0
+    }
+    for item in status:
+        result[item.type] = item.volume
+    return result
+
+
+def query_user_status_info_by_goods(user_id, goods):
+    status = UserStatus.select().where(UserStatus.user_id.in_([user_id]) & UserStatus.goods.in_([goods]))
+    if len(status) == 0:
+        return None
+    if len(status) > 1:
+        raise Exception("多条" + goods + "持仓记录")
+    return status[0]
+
+
 class Action():
-    def __init__(self, action, volume, stop_loss, take_profit, reasons, origin_response):
+    def __init__(self, action, volume, reasons, origin_response, stop_loss=0, take_profit=0):
         self.action = action
         self.volume = volume
         self.stop_loss = stop_loss
@@ -26,18 +46,28 @@ class User():
 
     def action(self, action: Action, goods, current_price):
         if action.action == 'hold':
+            self.add_record(action, goods, current_price)
             return
-        # TODO 要添加平仓逻辑
-        self.add_record(action, goods, current_price)
-        self.money -= action.volume * current_price
+        if action.action == 'sell' or action.action == 'buy':
+            self.add_record(action, goods, current_price)
+            self.add_status(action, goods, current_price)
+            self.money -= action.volume * current_price
+
+        if action.action == 'close' or action.action == 'add':
+            raise Exception("平仓加仓操作未实现")
+
         if self.money < 100:
             self.status = "dead"
         self.update()
-        # TODO 添加持仓状态
 
     def add_record(self, action: Action, goods, current_price):
         add_record(self.id, goods, action.volume, current_price, action.action, action.reasons,
                    action.origin_response)
+
+    def add_status(self, action, goods, current_price):
+        status = UserStatus(user_id=self.id, goods=goods, volume=action.volume, price=current_price, type=action.action,
+                            stop_loss=action.stop_loss, take_profit=action.take_profit)
+        status.save()
 
     def update(self):
         update_user(self.id, self.name, self.money, self.status)

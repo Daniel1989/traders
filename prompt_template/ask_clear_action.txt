@@ -36,10 +36,10 @@ Based on the provided context, you should recommend close, add, or hold? Explain
 
 ## Output Restriction:
 1. the output should be in json format
-2. the output contains five fields:
+2. the output contains three fields:
     i. 'action', which mapping to 'close' or 'add' or 'hold'
     ii. 'volume', the volume for action, should be a number, and smaller than maximum purchasable volume
-    iii. 'reasons', a string list, which contains the reason why you take this action
+    iii. 'reason', a string list, which contains the reason why you take this action
 Here is an output example:
 {
     "action": "close",

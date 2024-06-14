@@ -1,4 +1,4 @@
-from models.base import LlmClient
+from llm.base import LlmClient
 import requests
 from dotenv import load_dotenv
 import json

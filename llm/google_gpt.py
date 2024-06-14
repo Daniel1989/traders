@@ -1,4 +1,4 @@
-from models.base import LlmClient
+from llm.base import LlmClient
 from dotenv import load_dotenv
 import os
 import google.generativeai as genai
@@ -10,20 +10,20 @@ os.environ["https_proxy"] = "http://127.0.0.1:1087"
 # for m in genai.list_models():
 #     print(m.name)
 '''
-models/chat-bison-001
-models/text-bison-001
-models/embedding-gecko-001
-models/gemini-1.0-pro
-models/gemini-1.0-pro-001
-models/gemini-1.0-pro-latest
-models/gemini-1.0-pro-vision-latest
-models/gemini-1.5-flash-latest
-models/gemini-1.5-pro-latest
-models/gemini-pro
-models/gemini-pro-vision
-models/embedding-001
-models/text-embedding-004
-models/aqa
+llm/chat-bison-001
+llm/text-bison-001
+llm/embedding-gecko-001
+llm/gemini-1.0-pro
+llm/gemini-1.0-pro-001
+llm/gemini-1.0-pro-latest
+llm/gemini-1.0-pro-vision-latest
+llm/gemini-1.5-flash-latest
+llm/gemini-1.5-pro-latest
+llm/gemini-pro
+llm/gemini-pro-vision
+llm/embedding-001
+llm/text-embedding-004
+llm/aqa
 '''
 
 

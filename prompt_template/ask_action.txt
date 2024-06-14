@@ -35,9 +35,9 @@ Based on the provided context, you should recommend buy, sell, or hold? Explain 
 2. the output contains five fields:
     i. 'action', which mapping to 'buy' or 'sell' or 'hold'
     ii. 'volume', the volume for action, should be a number, and smaller than maximum purchasable volume
-    iii. 'stop_loss'
+    iii. 'stop_loss',
     iv. 'take_profit'
-    v. 'reasons', a string list, which contains the reason why you take this action
+    v. 'reason', a string list, which contains the reason why you take this action
 Here is an output example:
 {
     "action": "buy",

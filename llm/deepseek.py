@@ -1,4 +1,4 @@
-from models.base import LlmClient
+from llm.base import LlmClient
 from dotenv import load_dotenv
 import os
 from openai import OpenAI

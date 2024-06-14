@@ -36,13 +36,17 @@ Variables:
 
 ## 输出格式：
 输出必须是标准的json格式
-输出包含三个字段：
+输出包含五个字段：
     i.   'action'，与'close'、'add'或'hold'相对应
     ii.  'volume'，交易量，应为数字，并且小于最大可交易量
-    iii.    'reason'，一个数组，包含你采取这个行动的每个原因
+    iii. 'stop_loss'，止损位，如果进行加仓操作，必须设置这个值，如果是hold，则设置为0
+    iv.  'take_profit'，止盈位，如果进行加仓操作，必须设置这个值，如果是hold，则设置为0
+    v.    'reason'，一个数组，包含你采取这个行动的每个原因
 下面是一个输出示例：
 {
     "action": "close",
     "volume": 100,
+    "stop_loss": 7000,
+    "take_profit": 7100,
     "reason": ["价格比较相对低"]
 }

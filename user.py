@@ -1,6 +1,14 @@
 from models import Records, Users, Userstatus
 
 
+def reset():
+    user = Users.select()[0]
+    user.money = 100000
+    user.save()
+    Userstatus.delete().execute()
+    Records.delete().execute()
+
+
 def query_user():
     data = Users.select()[0]
     user = User(data.id, data.name, data.money, data.status)
@@ -8,7 +16,8 @@ def query_user():
 
 
 def query_goods_status(user_id, goods):
-    status = Userstatus.select().where(Userstatus.user_id.in_([user_id]) & Userstatus.goods.in_([goods]) & (Userstatus.is_clear == 0))
+    status = Userstatus.select().where(
+        Userstatus.user_id.in_([user_id]) & Userstatus.goods.in_([goods]) & (Userstatus.is_clear == 0))
     result = {
         "buy": 0,
         "sell": 0
@@ -19,7 +28,8 @@ def query_goods_status(user_id, goods):
 
 
 def query_user_status_info_by_goods(user_id, goods):
-    status = Userstatus.select().where(Userstatus.user_id.in_([user_id]) & Userstatus.goods.in_([goods]) & (Userstatus.is_clear == 0))
+    status = Userstatus.select().where(
+        Userstatus.user_id.in_([user_id]) & Userstatus.goods.in_([goods]) & (Userstatus.is_clear == 0))
     if len(status) == 0:
         return None
     if len(status) > 1:
@@ -28,13 +38,14 @@ def query_user_status_info_by_goods(user_id, goods):
 
 
 class Action():
-    def __init__(self, action, volume, reason, origin_response, stop_loss=0, take_profit=0):
+    def __init__(self, action, volume, reason, origin_response, stop_loss=0, take_profit=0, date_str=None):
         self.action = action
         self.volume = volume
         self.stop_loss = stop_loss or 0
         self.take_profit = take_profit or 0
         self.reasons = reason
         self.origin_response = origin_response
+        self.date_str = date_str
 
 
 class User():
@@ -63,24 +74,24 @@ class User():
             self.money += total_profit + action.volume * current_status.price
             print("结算资金为: ", self.money)
 
-
         if action.action == 'add':
             self.add_record(action, goods, current_price)
             self.update_status(action, goods, current_price)
             self.money -= action.volume * current_price
-
 
         # if self.money < 100:
         #     self.status = "dead"
         self.update()
 
     def add_record(self, action: Action, goods, current_price):
-        records = Records(user_id=self.id, goods=goods, volume=action.volume, price=current_price, type=action.action, origin_response=action.origin_response, reasons="\n".join(action.reasons))
+        records = Records(user_id=self.id, goods=goods, volume=action.volume, price=current_price, type=action.action,
+                          origin_response=action.origin_response, reasons="\n".join(action.reasons))
         records.save()
 
     def add_status(self, action, goods, current_price):
         status = Userstatus(user_id=self.id, goods=goods, volume=action.volume, price=current_price, type=action.action,
-                            stop_loss=action.stop_loss, take_profit=action.take_profit, is_clear=0)
+                            stop_loss=action.stop_loss, take_profit=action.take_profit, is_clear=0,
+                            open_date=action.date_str)
         status.save()
 
     def update_status(self, action, goods, current_price, profit=0):
@@ -88,6 +99,7 @@ class User():
         if action.action == 'close':
             current_status.is_clear = 1
             current_status.close = current_price
+            current_status.close_date = action.date_str
             current_status.profit = profit
             current_status.save()
         else:

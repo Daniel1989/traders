@@ -6,8 +6,7 @@
 ## COMMAND
 
 ### 从db生成model 
-`python -m pwiz --engine=sqlite traders.db > schema.py
-`
+`python -m pwiz --engine=sqlite traders.db > schema.py`
 
 ### 同步表到db
 python models.py
@@ -16,5 +15,5 @@ python models.py
 python migration.py
 
 ### TODO
-1. 添加成交日期
-2. 继续实验其他模型
+1. 并行调用
+2. 火山引擎

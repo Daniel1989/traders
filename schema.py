@@ -37,8 +37,10 @@ class Users(BaseModel):
 
 class Userstatus(BaseModel):
     close = IntegerField(null=True)
+    close_date = CharField(null=True)
     goods = CharField()
     is_clear = IntegerField(column_name='isClear')
+    open_date = CharField(null=True)
     price = FloatField()
     profit = IntegerField(null=True)
     stop_loss = FloatField()

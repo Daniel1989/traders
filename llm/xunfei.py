@@ -8,6 +8,8 @@ from sparkai.core.messages import ChatMessage
 load_dotenv()
 
 SPARKAI_URL = 'wss://spark-api.xf-yun.com/v1.1/chat'
+# SPARKAI_URL = 'wss://spark-api.xf-yun.com/v3.5/chat' pro地址
+
 SPARKAI_DOMAIN = 'general'
 
 SPARKAI_API_SECRET = os.getenv("SPARKAI_API_SECRET")

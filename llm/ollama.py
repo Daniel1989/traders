@@ -1,6 +1,7 @@
 from llm.base import LlmClient
 import requests
 import json
+import ollama
 
 
 class Ollama(LlmClient):
@@ -9,19 +10,10 @@ class Ollama(LlmClient):
         self.is_chinese = False
 
     def do_prompt(self, prompt_text, system_prompt=None) -> str:
-        data = {
-            "model": self.model_name,
-            "stream": False,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": prompt_text
-                }
-            ],
-            "options": {
-                "temperature": 0
+        response = ollama.chat(model='llama3', messages=[
+            {
+                "role": "user",
+                "content": prompt_text
             }
-        }
-        url = "http://localhost:11434/api/chat"
-        response = requests.post(url, json=data)
-        return json.loads(response.text)["message"]["content"]
+        ])
+        return response["message"]["content"]

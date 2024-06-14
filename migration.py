@@ -4,7 +4,7 @@ my_db = SqliteDatabase('traders.db')
 migrator = SqliteMigrator(my_db)
 
 close_date = CharField(null=True, default=None)
-open_date = CharField()
+open_date = CharField(null=True, default=None)
 
 with my_db.transaction():
     migrate(

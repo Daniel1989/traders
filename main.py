@@ -84,9 +84,9 @@ def do_action(daily, goods, data, retry_num=0):
         max_shares_num = max(status["buy"], status["sell"])
         actual_vol = current_status.volume * 10  # 杠杆系数设置为10
         total_profit = (current_price - current_status.price) * actual_vol * (1 if current_status.type == 'buy' else -1)
-        print("当前收益: ", total_profit)
         left_money = user.money + total_profit
-        print("当前剩余可用资金: ", left_money)
+        print("当前剩余可用资金: ", user.money)
+        print("当前收益: ", total_profit)
         print("当前总资产: ", current_price * current_status.volume + left_money)
 
         # 是否人工强平

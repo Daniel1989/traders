@@ -58,7 +58,7 @@ class User():
             current_status = query_user_status_info_by_goods(self.id, goods)
             total_profit = (current_price - current_status.price) * current_status.volume * (
                 1 if current_status.type == 'buy' else -1) * 10  # 杠杆系数设置为10
-            self.update_status(action, goods, current_price)
+            self.update_status(action, goods, current_price, total_profit)
             print("平仓，收益为: ", total_profit, "，剩余资金为: ", self.money)
             self.money += total_profit + action.volume * current_status.price
             print("结算资金为: ", self.money)
@@ -83,10 +83,12 @@ class User():
                             stop_loss=action.stop_loss, take_profit=action.take_profit, is_clear=0)
         status.save()
 
-    def update_status(self, action, goods, current_price):
+    def update_status(self, action, goods, current_price, profit=0):
         current_status = query_user_status_info_by_goods(self.id, goods)
         if action.action == 'close':
             current_status.is_clear = 1
+            current_status.close = current_price
+            current_status.profit = profit
             current_status.save()
         else:
             total = current_status.price * current_status.volume + action.volume * current_price

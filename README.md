@@ -14,3 +14,7 @@ python models.py
 
 ### 修改表结构
 python migration.py
+
+### TODO
+1. 添加成交日期
+2. 继续实验其他模型

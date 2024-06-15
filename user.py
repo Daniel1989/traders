@@ -1,16 +1,15 @@
+from constants.model import RATION
 from models import Records, Users, Userstatus
 
 
 def reset():
-    user = Users.select()[0]
-    user.money = 100000
-    user.save()
+    Users.delete().execute()
     Userstatus.delete().execute()
     Records.delete().execute()
 
 
-def query_user():
-    data = Users.select()[0]
+def query_user(name):
+    data = Users.select().where(Users.name == name)[0]
     user = User(data.id, data.name, data.money, data.status)
     return user
 
@@ -68,7 +67,7 @@ class User():
             self.add_record(action, goods, current_price)
             current_status = query_user_status_info_by_goods(self.id, goods)
             total_profit = (current_price - current_status.price) * current_status.volume * (
-                1 if current_status.type == 'buy' else -1) * 10  # 杠杆系数设置为10
+                1 if current_status.type == 'buy' else -1) * RATION  # 杠杆系数设置为10
             self.update_status(action, goods, current_price, total_profit)
             print("平仓，收益为: ", total_profit, "，剩余资金为: ", self.money)
             self.money += total_profit + action.volume * current_status.price

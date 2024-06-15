@@ -1,6 +1,4 @@
 from llm.base import LlmClient
-import requests
-import json
 import ollama
 
 
@@ -16,4 +14,5 @@ class Ollama(LlmClient):
                 "content": prompt_text
             }
         ])
+        print(response)
         return response["message"]["content"]

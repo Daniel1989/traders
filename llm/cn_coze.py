@@ -28,5 +28,9 @@ class CnCozeModal(LlmClient):
         }
         url = "https://api.coze.cn/open_api/v2/chat"
         response = requests.post(url, json=data, headers=header)
-        messages = json.loads(response.text)["messages"]
-        return messages[0]["content"]
+        try:
+            messages = json.loads(response.text)["messages"]
+            return messages[0]["content"]
+        except Exception as e:
+            print("cn coze error", e)
+            print(response)

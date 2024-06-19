@@ -90,6 +90,7 @@ if __name__ == '__main__':
     reset()
     results = []
     url = "http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol=ag2408"
+    # url = "https://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesMiniKLine5m?symbol=ag2408"
     history = requests.get(url).json()
 
     with ProcessPoolExecutor() as executor:

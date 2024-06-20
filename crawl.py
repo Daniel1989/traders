@@ -47,7 +47,6 @@ class Crawl:
                     content = page.inner_html(f'#{element_id}')
                     soup = BeautifulSoup('<div>' + content + '</div>', 'html.parser')
                     trs = soup.find_all("tr")
-                    print("aa", trs)
                     # hidden_tr_elements = [tr for tr in tr_elements if
                     #                       'style' in tr.attrs and 'display: none' in tr.attrs['style']]
 

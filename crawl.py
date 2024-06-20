@@ -120,4 +120,4 @@ if __name__ == "__main__":
             if is_trade_time():
                 futureCrawler.do_crawl()
 
-        time.sleep(5)
+        time.sleep(5 * 60)

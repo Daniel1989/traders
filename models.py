@@ -52,5 +52,22 @@ class Userstatus(BaseModel):
     class Meta:
         table_name = 'userstatus'
 
+class Goods(BaseModel):
+    cn_name = CharField()
+    name = CharField()
+
+    class Meta:
+        table_name = 'goods'
+
+class PriceRecord(BaseModel):
+    goods = CharField()
+    price = FloatField()
+    date = DateField()
+    type = CharField()
+    timestamp = CharField(null=True)
+
+    class Meta:
+        table_name = 'priceRecord'
+
 database.connect()
-database.create_tables([Records, Users, Userstatus, LlmConfig])
+database.create_tables([Records, Users, Userstatus, LlmConfig, Goods, PriceRecord])

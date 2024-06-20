@@ -16,3 +16,8 @@ python migration.py
 
 ### TODO
 1. 并行调用
+
+### 依赖的项目
+https://github.com/Python3WebSpider/ProxyPool
+
+playwright install

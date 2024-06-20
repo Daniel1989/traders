@@ -47,6 +47,7 @@ class Crawl:
                     content = page.inner_html(f'#{element_id}')
                     soup = BeautifulSoup('<div>' + content + '</div>', 'html.parser')
                     trs = soup.find_all("tr")
+                    print("aa", trs)
                     # hidden_tr_elements = [tr for tr in tr_elements if
                     #                       'style' in tr.attrs and 'display: none' in tr.attrs['style']]
 
@@ -117,7 +118,7 @@ if __name__ == "__main__":
     while True:
         today = datetime.date.today()
         if today.weekday() != 5 or today.weekday() != 6:  # Saturday
-            if is_trade_time():
+            if not is_trade_time():
                 futureCrawler.do_crawl()
             else:
                 print("非交易时间")

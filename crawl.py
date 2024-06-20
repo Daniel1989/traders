@@ -119,5 +119,9 @@ if __name__ == "__main__":
         if today.weekday() != 5 or today.weekday() != 6:  # Saturday
             if is_trade_time():
                 futureCrawler.do_crawl()
+            else:
+                print("非交易时间")
+        else:
+            print("休市")
 
         time.sleep(5 * 60)

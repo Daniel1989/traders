@@ -39,7 +39,8 @@ class Crawl:
                     # page.goto('https://api.ipify.org?format=json')
                     # response = page.evaluate("document.body.textContent")
                     # print(f"Public IP Address: {response}")
-                    # user_agent = page.evaluate("navigator.userAgent")
+                    user_agent = page.evaluate("navigator.userAgent")
+                    print(user_agent)
 
                     page.goto(url)
                     time.sleep(5)

@@ -42,6 +42,7 @@ class Crawl:
                     # user_agent = page.evaluate("navigator.userAgent")
 
                     page.goto(url)
+                    time.sleep(5)
                     element_id = "table-box-futures-hq"
                     page.wait_for_selector(f'#{element_id}')
                     content = page.inner_html(f'#{element_id}')

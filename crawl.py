@@ -49,7 +49,7 @@ class Crawl:
                     trs = soup.find_all("tr")
                     # hidden_tr_elements = [tr for tr in tr_elements if
                     #                       'style' in tr.attrs and 'display: none' in tr.attrs['style']]
-
+                    print("all trs", trs)
                     for index, tr in enumerate(trs):
                         if index != 0:
                             continue

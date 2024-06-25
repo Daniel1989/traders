@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: traders
+    volumes:
+      - .:/app
+    command: ["python", "crawl.py"]

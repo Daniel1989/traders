@@ -58,6 +58,7 @@ class Crawl:
                         })
                     content = data.body().decode("GB2312").split("=")[1]
                     price = content.replace('"','').split(",")
+                    print("price is:", price)
                     current_time = datetime.datetime.now()
                     formatted_time = current_time.strftime("%Y-%m-%d  %H:%M:%S")
                     record = PriceRecord(goods=goods.id,

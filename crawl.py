@@ -39,11 +39,17 @@ class Crawl:
                     # page.goto('https://api.ipify.org?format=json')
                     # response = page.evaluate("document.body.textContent")
                     # print(f"Public IP Address: {response}")
-                    user_agent = page.evaluate("navigator.userAgent")
-                    print(user_agent)
+                    # user_agent = page.evaluate("navigator.userAgent")
 
-                    page.goto(url)
-                    time.sleep(5)
+                    page.goto(url, wait_until="domcontentloaded")
+                    print(self.goods_code)
+                    timestamp = int(datetime.datetime.now().timestamp() * 1000)
+                    data = page.request.get("https://hq.sinajs.cn/etag.php?_="+str(timestamp)+"&list=nf_" + self.goods_code, headers={
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+                        "Host": "hq.sinajs.cn",
+                        "Referer": url,
+                    })
+                    print("aaa", data.body().decode("GB2312"))
                     element_id = "table-box-futures-hq"
                     page.wait_for_selector(f'#{element_id}')
                     content = page.inner_html(f'#{element_id}')
@@ -51,7 +57,6 @@ class Crawl:
                     trs = soup.find_all("tr")
                     # hidden_tr_elements = [tr for tr in tr_elements if
                     #                       'style' in tr.attrs and 'display: none' in tr.attrs['style']]
-                    print("all trs", trs)
                     for index, tr in enumerate(trs):
                         if index != 0:
                             continue

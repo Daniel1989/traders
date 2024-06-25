@@ -58,6 +58,7 @@ class Crawl:
                         if len(th) != len(td):
                             first = td.pop(0)
                             data = first.text.strip().split("\n")
+                            print("data is", data)
                             record = PriceRecord(goods=goods.id,
                                                  price=float(data[0]),
                                                  date=data[3].split(" ")[0],
@@ -117,7 +118,7 @@ if __name__ == "__main__":
     while True:
         today = datetime.date.today()
         if today.weekday() != 5 or today.weekday() != 6:  # Saturday
-            if is_trade_time():
+            if not is_trade_time():
                 futureCrawler.do_crawl()
             else:
                 print("非交易时间")

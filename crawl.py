@@ -42,6 +42,8 @@ class Crawl:
                     # user_agent = page.evaluate("navigator.userAgent")
 
                     page.goto(url, wait_until="domcontentloaded")
+                    page.wait_for_load_state('networkidle')
+
                     print(self.goods_code)
                     timestamp = int(datetime.datetime.now().timestamp() * 1000)
                     data = page.request.get("https://hq.sinajs.cn/etag.php?_="+str(timestamp)+"&list=nf_" + self.goods_code, headers={

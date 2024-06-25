@@ -19,7 +19,7 @@ class Crawl:
         self.status = "init"
         self.retry_num = 0
         self.proxypool_url = "http://47.96.156.119/proxy/random?token=" + proxy_token
-        self.use_proxy = True
+        self.use_proxy = False
 
     def get_random_proxy(self):
         return requests.get(self.proxypool_url).text.strip()

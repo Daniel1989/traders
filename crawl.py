@@ -13,7 +13,7 @@ class Crawl:
         self.status = "init"
         self.retry_num = 0
         self.proxypool_url = 'http://127.0.0.1:5555/random'
-        self.use_proxy = False
+        self.use_proxy = True
 
     def get_random_proxy(self):
         return requests.get(self.proxypool_url).text.strip()
@@ -36,9 +36,9 @@ class Crawl:
                         browser = browser_type.launch()
 
                     page = browser.new_page()
-                    # page.goto('https://api.ipify.org?format=json')
-                    # response = page.evaluate("document.body.textContent")
-                    # print(f"Public IP Address: {response}")
+                    page.goto('https://api.ipify.org?format=json')
+                    response = page.evaluate("document.body.textContent")
+                    print(f"Public IP Address: {response}")
                     # user_agent = page.evaluate("navigator.userAgent")
 
                     page.goto(url, wait_until="domcontentloaded")

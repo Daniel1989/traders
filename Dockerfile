@@ -1,5 +1,9 @@
 FROM centos as build
 
+RUN cd /etc/yum.repos.d/
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+
 RUN yum update -y && yum install epel-release -y && yum install python3 -y
 RUN python3 -m pip install playwright==1.9.2 -U
 RUN python3 -m playwright install

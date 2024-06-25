@@ -4,6 +4,12 @@ from playwright.sync_api import sync_playwright
 from models import PriceRecord, Goods
 import time
 import datetime
+from dotenv import load_dotenv
+import os
+
+
+load_dotenv()
+proxy_token = os.getenv("PROXY_TOKEN")
 
 
 class Crawl:
@@ -12,7 +18,7 @@ class Crawl:
         self.goods_code = goods_code
         self.status = "init"
         self.retry_num = 0
-        self.proxypool_url = 'http://127.0.0.1:5555/random'
+        self.proxypool_url = "http://47.96.156.119/proxy/random?token=" + proxy_token
         self.use_proxy = True
 
     def get_random_proxy(self):
@@ -29,6 +35,7 @@ class Crawl:
                 try:
                     if self.use_proxy:
                         proxy = 'http://' + self.get_random_proxy()
+                        print("proxy is:", proxy)
                         browser = browser_type.launch(proxy={
                             "server": proxy
                         })
@@ -41,29 +48,47 @@ class Crawl:
                     print(f"Public IP Address: {response}")
                     # user_agent = page.evaluate("navigator.userAgent")
 
-                    page.goto(url, wait_until="domcontentloaded")
-                    page.wait_for_load_state('networkidle')
+                    # page.goto(url)
+                    timestamp = int(datetime.datetime.now().timestamp() * 1000)
+                    data = page.request.get(
+                        "https://hq.sinajs.cn/etag.php?_=" + str(timestamp) + "&list=nf_" + self.goods_code, headers={
+                            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+                            "Host": "hq.sinajs.cn",
+                            "Referer": url,
+                        })
+                    content = data.body().decode("GB2312").split("=")[1]
+                    price = content.replace('"','').split(",")
+                    current_time = datetime.datetime.now()
+                    formatted_time = current_time.strftime("%Y-%m-%d  %H:%M:%S")
+                    record = PriceRecord(goods=goods.id,
+                                         price=float(price[7]),
+                                         date=formatted_time.split(" ")[0],
+                                         type="1MIN",
+                                         timestamp=formatted_time.split(" ")[1])
+                    record.save()
 
-                    element_id = "table-box-futures-hq"
-                    page.wait_for_selector(f'#{element_id}')
-                    content = page.inner_html(f'#{element_id}')
-                    soup = BeautifulSoup('<div>' + content + '</div>', 'html.parser')
-                    trs = soup.find_all("tr")
-                    for index, tr in enumerate(trs):
-                        if index != 0:
-                            continue
-                        th = tr.find_all("th")
-                        td = tr.find_all("td")
-                        if len(th) != len(td):
-                            first = td.pop(0)
-                            data = first.text.strip().split("\n")
-                            print("data is", data)
-                            record = PriceRecord(goods=goods.id,
-                                                 price=float(data[0]),
-                                                 date=data[3].split(" ")[0],
-                                                 type="1MIN",
-                                                 timestamp=data[3].split(" ")[1])
-                            record.save()
+                    # page.wait_for_load_state('networkidle')
+
+                    # element_id = "table-box-futures-hq"
+                    # page.wait_for_selector(f'#{element_id}')
+                    # content = page.inner_html(f'#{element_id}')
+                    # soup = BeautifulSoup('<div>' + content + '</div>', 'html.parser')
+                    # trs = soup.find_all("tr")
+                    # for index, tr in enumerate(trs):
+                    #     if index != 0:
+                    #         continue
+                    #     th = tr.find_all("th")
+                    #     td = tr.find_all("td")
+                    #     if len(th) != len(td):
+                    #         first = td.pop(0)
+                    #         data = first.text.strip().split("\n")
+                    #         print("data is", data)
+                    #         record = PriceRecord(goods=goods.id,
+                    #                              price=float(data[0]),
+                    #                              date=data[3].split(" ")[0],
+                    #                              type="1MIN",
+                    #                              timestamp=data[3].split(" ")[1])
+                    #         record.save()
                         # for h, d in zip(th, td):
                         #     if len(h.text.strip()) > 0:
                         #         print(h.text.strip().replace("&nbsp;", ""), d.text.strip())

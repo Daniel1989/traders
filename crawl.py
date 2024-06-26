@@ -1,12 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
-from models import PriceRecord, Goods
+from models import PriceRecord, Goods, Ip
 import time
 import datetime
 from dotenv import load_dotenv
 import os
 
+from service.ip import get_high_score_ip
+from util.utils import is_trade_time
 
 load_dotenv()
 proxy_token = os.getenv("PROXY_TOKEN")
@@ -27,49 +29,86 @@ class Crawl:
     def build_url(self):
         return self.base_url + "/" + self.goods_code + ".shtml"
 
-    def do_crawl(self):
+    def parse_page(self, page, use_proxy=False):
         goods = Goods.select().where(Goods.name == self.goods_code[:2]).get()
         url = self.build_url()
+        timestamp = int(datetime.datetime.now().timestamp() * 1000)
+        data = page.request.get(
+            "https://hq.sinajs.cn/etag.php?_=" + str(timestamp) + "&list=nf_" + self.goods_code, headers={
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+                "Host": "hq.sinajs.cn",
+                "Referer": url,
+            })
+        content = data.body().decode("GB2312").split("=")[1]
+        price = content.replace('"', '').split(",")
+        print("price is:", price)
+        current_time = datetime.datetime.now()
+        formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
+        if use_proxy:
+            record = PriceRecord(goods=goods.id,
+                                 price=float(price[7]),
+                                 type="5MIN",
+                                 timestamp=formatted_time.split(" ")[1])
+            record.save()
+
+    def do_crawl(self, use_proxy=False):
+
         with sync_playwright() as p:
             for browser_type in [p.chromium]:  # p.firefox, p.webkit
                 try:
-                    if self.use_proxy:
-                        proxy = 'http://' + self.get_random_proxy()
+                    if self.use_proxy or use_proxy:
+                        success_ip = get_high_score_ip()
+                        if success_ip:
+                            proxy = success_ip.ip
+                        else:
+                            proxy = 'http://' + self.get_random_proxy()
                         print("proxy is:", proxy)
                         browser = browser_type.launch(proxy={
                             "server": proxy
                         })
                     else:
+                        print("no proxy")
                         browser = browser_type.launch()
 
                     page = browser.new_page()
-                    page.goto('https://api.ipify.org?format=json')
-                    response = page.evaluate("document.body.textContent")
-                    print(f"Public IP Address: {response}")
+                    try:
+                        start_time = datetime.datetime.now()
+                        self.parse_page(page, self.use_proxy or use_proxy)
+                        end_time = datetime.datetime.now()
+                        if self.use_proxy or use_proxy:
+                            if success_ip:
+                                success_ip.success_num += 1
+                                success_ip.last_check_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                success_ip.status = "success"
+                                success_ip.cost_time = int((end_time - start_time).total_seconds() * 1000)
+                                success_ip.save()
+                            else:
+                                available_ip = Ip(ip=proxy, cost_time=int((end_time - start_time).total_seconds() * 1000), status="success", success_num=1, fail_num=0,
+                                                  last_check_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                                available_ip.save()
+                    except Exception as e:
+                        if self.use_proxy or use_proxy:
+                            if success_ip:
+                                success_ip.fail_num += 1
+                                success_ip.last_check_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                success_ip.status = "fail"
+                                success_ip.cost_time = -1
+                                success_ip.save()
+                            else:
+                                available_ip = Ip(ip=proxy, cost_time=-1,
+                                                  status="fail", success_num=0, fail_num=1,
+                                                  last_check_time=datetime.datetime.now())
+                                available_ip.save()
+                        print("parse page error", e)
+
+                    # page.goto('https://api.ipify.org?format=json')
+                    # response = page.evaluate("document.body.textContent")
+                    # print(f"Public IP Address: {response}")
                     # user_agent = page.evaluate("navigator.userAgent")
 
                     # page.goto(url)
-                    timestamp = int(datetime.datetime.now().timestamp() * 1000)
-                    data = page.request.get(
-                        "https://hq.sinajs.cn/etag.php?_=" + str(timestamp) + "&list=nf_" + self.goods_code, headers={
-                            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-                            "Host": "hq.sinajs.cn",
-                            "Referer": url,
-                        })
-                    content = data.body().decode("GB2312").split("=")[1]
-                    price = content.replace('"','').split(",")
-                    print("price is:", price)
-                    current_time = datetime.datetime.now()
-                    formatted_time = current_time.strftime("%Y-%m-%d  %H:%M:%S")
-                    record = PriceRecord(goods=goods.id,
-                                         price=float(price[7]),
-                                         date=formatted_time.split(" ")[0],
-                                         type="1MIN",
-                                         timestamp=formatted_time.split(" ")[1])
-                    record.save()
 
                     # page.wait_for_load_state('networkidle')
-
                     # element_id = "table-box-futures-hq"
                     # page.wait_for_selector(f'#{element_id}')
                     # content = page.inner_html(f'#{element_id}')
@@ -90,52 +129,12 @@ class Crawl:
                     #                              type="1MIN",
                     #                              timestamp=data[3].split(" ")[1])
                     #         record.save()
-                        # for h, d in zip(th, td):
-                        #     if len(h.text.strip()) > 0:
-                        #         print(h.text.strip().replace("&nbsp;", ""), d.text.strip())
+                    # for h, d in zip(th, td):
+                    #     if len(h.text.strip()) > 0:
+                    #         print(h.text.strip().replace("&nbsp;", ""), d.text.strip())
                     browser.close()
                 except Exception as e:
                     print("执行出错", e)
-
-
-def is_time_in_range(start, end, now=None):
-    # If now is not specified, use current time
-    now = now or datetime.datetime.now().time()
-    if start <= end:
-        return start <= now <= end
-    else:  # crosses midnight
-        return start <= now or now <= end
-
-
-def is_time_in_day_range(start, end, now=None):
-    # If now is not specified, use current time
-    now = now or datetime.datetime.now().time()
-
-    # Convert start and end times to datetime objects for comparison
-    start_dt = datetime.datetime.combine(datetime.date.today(), start)
-    end_dt = datetime.datetime.combine(datetime.date.today(), end)
-    now_dt = datetime.datetime.combine(datetime.date.today(), now)
-
-    if start <= end:
-        return start_dt <= now_dt <= end_dt
-    else:  # crosses midnight
-        return start_dt <= now_dt or now_dt <= end_dt
-
-
-def is_trade_time():
-    start_morning = datetime.time(9, 0)
-    end_morning = datetime.time(11, 30)
-
-    start_afternoon = datetime.time(13, 30)
-    end_afternoon = datetime.time(15, 00)
-
-    start_time = datetime.time(21, 0)  # 10:00 PM
-    end_time = datetime.time(2, 0)
-
-    return (is_time_in_range(start_morning, end_morning) or
-            is_time_in_range(start_afternoon, end_afternoon) or
-            is_time_in_day_range(start_time, end_time)
-            )
 
 
 if __name__ == "__main__":
@@ -145,6 +144,7 @@ if __name__ == "__main__":
         if today.weekday() != 5 or today.weekday() != 6:  # Saturday
             if is_trade_time():
                 futureCrawler.do_crawl()
+                futureCrawler.do_crawl(use_proxy=True)
             else:
                 print("非交易时间")
         else:

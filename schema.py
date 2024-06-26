@@ -15,6 +15,35 @@ class LlmConfig(BaseModel):
     class Meta:
         table_name = 'LLMConfig'
 
+class Goods(BaseModel):
+    cn_name = CharField()
+    name = CharField()
+
+    class Meta:
+        table_name = 'goods'
+
+class Ip(BaseModel):
+    cost_time = IntegerField(null=True)
+    create_time = DateTimeField()
+    fail_num = IntegerField()
+    ip = CharField()
+    last_check_time = DateTimeField()
+    status = CharField()
+    success_num = IntegerField()
+
+    class Meta:
+        table_name = 'ip'
+
+class PriceRecord(BaseModel):
+    date = DateField()
+    goods = CharField()
+    price = FloatField()
+    timestamp = CharField(null=True)
+    type = CharField()
+
+    class Meta:
+        table_name = 'priceRecord'
+
 class Records(BaseModel):
     goods = TextField(null=True)
     origin_response = TextField(null=True)

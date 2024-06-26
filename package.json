@@ -1,0 +1,14 @@
+{
+  "name": "traders",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "scan": "npx prisma studio",
+    "init": "npx prisma introspect"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "prisma": "^5.14.0"
+  }
+}

@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model LLMConfig {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model goods {
+  id      Int    @id @default(autoincrement())
+  cn_name String
+  name    String
+}
+
+model ip {
+  id              Int      @id @default(autoincrement())
+  ip              String
+  success_num     Int
+  fail_num        Int
+  status          String
+  last_check_time DateTime
+  create_time     DateTime
+  cost_time       Int?
+}
+
+model priceRecord {
+  id        Int      @id @default(autoincrement())
+  goods     String
+  price     Float
+  date      String
+  timestamp String?
+  type      String
+}
+
+model records {
+  id              Int     @id @default(autoincrement())
+  user_id         Int?
+  goods           String?
+  volume          Int?
+  price           Int?
+  type            String?
+  reasons         String?
+  origin_response String?
+}
+
+model users {
+  id     Int     @id @default(autoincrement())
+  name   String? @unique(map: "users_name")
+  money  Int?
+  status String?
+}
+
+model userstatus {
+  id          Int     @id @default(autoincrement())
+  user_id     String
+  goods       String
+  volume      Int
+  price       Float
+  type        String
+  stop_loss   Float
+  take_profit Float
+  isClear     Int
+  close       Int?
+  profit      Int?
+  close_date  String?
+  open_date   String?
+}

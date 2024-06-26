@@ -1,19 +1,24 @@
 from peewee import *
+import datetime
 
 database = SqliteDatabase('traders.db')
+
 
 class UnknownField(object):
     def __init__(self, *_, **__): pass
 
+
 class BaseModel(Model):
     class Meta:
         database = database
+
 
 class LlmConfig(BaseModel):
     name = CharField()
 
     class Meta:
         table_name = 'LLMConfig'
+
 
 class Records(BaseModel):
     goods = TextField(null=True)
@@ -27,6 +32,7 @@ class Records(BaseModel):
     class Meta:
         table_name = 'records'
 
+
 class Users(BaseModel):
     money = IntegerField(null=True)
     name = TextField(null=True, unique=True)
@@ -34,6 +40,7 @@ class Users(BaseModel):
 
     class Meta:
         table_name = 'users'
+
 
 class Userstatus(BaseModel):
     close = IntegerField(null=True)
@@ -52,6 +59,7 @@ class Userstatus(BaseModel):
     class Meta:
         table_name = 'userstatus'
 
+
 class Goods(BaseModel):
     cn_name = CharField()
     name = CharField()
@@ -59,15 +67,30 @@ class Goods(BaseModel):
     class Meta:
         table_name = 'goods'
 
+
 class PriceRecord(BaseModel):
     goods = CharField()
     price = FloatField()
-    date = DateField()
+    date = DateTimeField(default=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     type = CharField()
     timestamp = CharField(null=True)
 
     class Meta:
         table_name = 'priceRecord'
 
+
+class Ip(BaseModel):
+    ip = CharField()
+    success_num = IntegerField(default=0)
+    fail_num = IntegerField(default=0)
+    status = CharField()
+    cost_time = IntegerField(null=True)
+    last_check_time = DateTimeField()
+    create_time = DateTimeField(default=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+    class Meta:
+        table_name = 'ip'
+
+
 database.connect()
-database.create_tables([Records, Users, Userstatus, LlmConfig, Goods, PriceRecord])
+database.create_tables([Records, Users, Userstatus, LlmConfig, Goods, PriceRecord, Ip])

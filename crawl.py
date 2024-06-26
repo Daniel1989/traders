@@ -142,7 +142,7 @@ if __name__ == "__main__":
     while True:
         today = datetime.date.today()
         if today.weekday() != 5 or today.weekday() != 6:  # Saturday
-            if is_trade_time():
+            if not is_trade_time():
                 futureCrawler.do_crawl()
                 futureCrawler.do_crawl(use_proxy=True)
             else:

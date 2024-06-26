@@ -11,7 +11,7 @@ from service.ip import get_high_score_ip
 from util.utils import is_trade_time
 
 load_dotenv()
-proxy_token = os.getenv("PROXY_TOKEN")
+proxy_token = os.getenv("PROXY_TOKEN") or ""
 
 
 class Crawl:

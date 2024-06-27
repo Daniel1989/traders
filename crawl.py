@@ -33,6 +33,18 @@ class Crawl:
         goods = Goods.select().where(Goods.name == self.goods_code[:2]).get()
         url = self.build_url()
         timestamp = int(datetime.datetime.now().timestamp() * 1000)
+
+        # TODO 这里使用循环，看是否能等价于打开页面不停的内容
+        # page.goto(url)
+        # page.wait_for_selector(".min-price")
+        # for i in range(100000):
+        #     text = page.evaluate("""
+        #         () => {
+        #   return document.getElementsByClassName("min-price")[0].innerHTML
+        # }
+        #         """)
+        #     print(text)
+
         data = page.request.get(
             "https://hq.sinajs.cn/etag.php?_=" + str(timestamp) + "&list=nf_" + self.goods_code, headers={
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",

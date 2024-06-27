@@ -40,7 +40,7 @@ class Crawl:
         # for i in range(100000):
         #     text = page.evaluate("""
         #         () => {
-        #   return document.getElementsByClassName("min-price")[0].innerHTML
+        #   return document.getElementsByClassName("price red")[1].innerHTML
         # }
         #         """)
         #     print(text)

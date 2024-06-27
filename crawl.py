@@ -97,7 +97,7 @@ class Crawl:
                             else:
                                 available_ip = Ip(ip=proxy, cost_time=-1,
                                                   status="fail", success_num=0, fail_num=1,
-                                                  last_check_time=datetime.datetime.now())
+                                                  last_check_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                                 available_ip.save()
                         print("parse page error", e)
 

@@ -21,6 +21,13 @@ price_model_key_list = ['uid', 'goods', 'price_time', 'current_price', 'price_di
                         'buy_vol', 'sell_vol',
                         ]
 
+def is_debian():
+    try:
+        with open("/etc/os-release", "r") as file:
+            os_info = file.read().lower()
+            return "debian" in os_info
+    except FileNotFoundError:
+        return False
 
 class Crawl:
     def __init__(self, base_url, goods_code):
@@ -86,7 +93,8 @@ class Crawl:
 
     def do_crawl(self):
         with sync_playwright() as p:
-            for browser_type in [p.webkit]:  # p.firefox, p.webkit
+            target = p.webkit if is_debian() else p.chromium
+            for browser_type in [target]:  # p.firefox, p.chromium, p.webkit
                 try:
                     browser = browser_type.launch()
                     page = browser.new_page()

@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
-from models import PriceRecord, Goods, Ip
+from models import Goods, Ip
 import time
 import datetime
 from dotenv import load_dotenv
@@ -56,12 +56,12 @@ class Crawl:
         print("price is:", price)
         current_time = datetime.datetime.now()
         formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
-        if use_proxy:
-            record = PriceRecord(goods=goods.id,
-                                 price=float(price[7]),
-                                 type="5MIN",
-                                 timestamp=formatted_time.split(" ")[1])
-            record.save()
+        # if use_proxy:
+            # record = PriceRecord(goods=goods.id,
+            #                      price=float(price[7]),
+            #                      type="5MIN",
+            #                      timestamp=formatted_time.split(" ")[1])
+            # record.save()
 
     def do_crawl(self, use_proxy=False):
 

@@ -29,14 +29,6 @@ model ip {
   cost_time       Int?
 }
 
-model priceRecord {
-  id        Int      @id @default(autoincrement())
-  goods     String
-  price     Float
-  date      String
-  timestamp String?
-  type      String
-}
 
 model records {
   id              Int     @id @default(autoincrement())

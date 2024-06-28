@@ -1,7 +1,20 @@
 from peewee import *
 import datetime
+from dotenv import load_dotenv
+import os
 
-database = SqliteDatabase('traders.db')
+load_dotenv()
+
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_host = os.getenv("DB_HOST")
+
+database = MySQLDatabase('futures', user=db_user, password=db_password,
+                         host=db_host, port=3306)
+
+
+def formatted_datetime_now():
+    return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 
 class UnknownField(object):
@@ -11,13 +24,6 @@ class UnknownField(object):
 class BaseModel(Model):
     class Meta:
         database = database
-
-
-class LlmConfig(BaseModel):
-    name = CharField()
-
-    class Meta:
-        table_name = 'LLMConfig'
 
 
 class Records(BaseModel):
@@ -68,15 +74,29 @@ class Goods(BaseModel):
         table_name = 'goods'
 
 
-class PriceRecord(BaseModel):
+class GoodsPriceInSecond(BaseModel):
+    uid = CharField()
     goods = CharField()
-    price = FloatField()
-    date = DateTimeField(default=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    type = CharField()
-    timestamp = CharField(null=True)
+    current_price = FloatField()
+    price_diff = FloatField()
+    price_diff_percent = FloatField()
+    open_price = FloatField()
+    high_price = FloatField()
+    low_price = FloatField()
+    close_price = FloatField()
+    have_vol = FloatField()
+    deal_vol = FloatField()
+    compute_price = FloatField()
+    prev_compute_price = FloatField()
+    buy_price_oncall = FloatField()
+    sell_price_oncall = FloatField()
+    buy_vol = FloatField()
+    sell_vol = FloatField()
+    price_time = DateTimeField()
+    create_time = DateTimeField(default=formatted_datetime_now)
 
     class Meta:
-        table_name = 'priceRecord'
+        table_name = 'goodsPriceInSecond'
 
 
 class Ip(BaseModel):
@@ -86,11 +106,11 @@ class Ip(BaseModel):
     status = CharField()
     cost_time = IntegerField(null=True)
     last_check_time = DateTimeField()
-    create_time = DateTimeField(default=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    create_time = DateTimeField(default=formatted_datetime_now)
 
     class Meta:
         table_name = 'ip'
 
 
 database.connect()
-database.create_tables([Records, Users, Userstatus, LlmConfig, Goods, PriceRecord, Ip])
+database.create_tables([GoodsPriceInSecond, Records, Users, Userstatus, Goods, Ip])

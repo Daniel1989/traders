@@ -34,16 +34,6 @@ class Ip(BaseModel):
     class Meta:
         table_name = 'ip'
 
-class PriceRecord(BaseModel):
-    date = DateField()
-    goods = CharField()
-    price = FloatField()
-    timestamp = CharField(null=True)
-    type = CharField()
-
-    class Meta:
-        table_name = 'priceRecord'
-
 class Records(BaseModel):
     goods = TextField(null=True)
     origin_response = TextField(null=True)

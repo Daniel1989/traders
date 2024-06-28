@@ -86,7 +86,7 @@ class Crawl:
 
     def do_crawl(self):
         with sync_playwright() as p:
-            for browser_type in [p.chromium]:  # p.firefox, p.webkit
+            for browser_type in [p.webkit]:  # p.firefox, p.webkit
                 try:
                     browser = browser_type.launch()
                     page = browser.new_page()

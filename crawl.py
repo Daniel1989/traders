@@ -41,14 +41,7 @@ class Crawl:
         goods = Goods.select().where(Goods.name == self.goods_code[:2]).get()
         url = self.build_url()
 
-        page.goto("https://www.baidu.com")
-        content = page.evaluate("""
-                        () => {
-                  return document.body.innerHTML
-                }
-                        """)
-        print(content)
-        return
+        page.goto(url)
         page.wait_for_selector(".min-price")
         while True:
             content = page.evaluate("""

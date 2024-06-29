@@ -26,16 +26,20 @@ def is_time_in_day_range(start, end, now=None):
 
 
 def is_trade_time():
-    start_morning = datetime.time(9, 0)
+    start_day = datetime.time(9, 0)
+    end_day = datetime.time(10, 15)
+
+    start_morning = datetime.time(10, 30)
     end_morning = datetime.time(11, 30)
 
     start_afternoon = datetime.time(13, 30)
     end_afternoon = datetime.time(15, 00)
 
-    start_time = datetime.time(21, 0)  # 10:00 PM
-    end_time = datetime.time(2, 0)
+    start_time = datetime.time(21, 0)
+    end_time = datetime.time(2, 30)
 
-    return (is_time_in_range(start_morning, end_morning) or
+    return (is_time_in_range(start_day, end_day) or
+            is_time_in_range(start_morning, end_morning) or
             is_time_in_range(start_afternoon, end_afternoon) or
             is_time_in_day_range(start_time, end_time)
             )

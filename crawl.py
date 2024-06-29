@@ -79,13 +79,15 @@ class Crawl:
                     for h, d in zip(th, td):
                         if len(h.text.strip()) > 0:
                             price_detail.append(d.text)
-                            print(h.text.strip().replace("&nbsp;", "").replace(u'\xa0', "").replace(":", ""),
-                                  d.text.strip())
+                            # print(h.text.strip().replace("&nbsp;", "").replace(u'\xa0', "").replace(":", ""),
+                            #       d.text.strip())
             info = {}
             for item in price_model_key_list:
                 info[item] = price_detail.pop(0)
+            print(info)
             record = GoodsPriceInSecond(**info)
             record.save()
+            print("save ok")
             time.sleep(5)
             # 判断是否交易时间，不是则跳出
             if not is_trade_time():

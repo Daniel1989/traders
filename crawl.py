@@ -118,7 +118,7 @@ if __name__ == "__main__":
     futureCrawler = Crawl("https://finance.sina.com.cn/futures/quotes", "AG2408")
     while True:
         today = datetime.date.today()
-        if today.weekday() != 5 or today.weekday() != 6:  # Saturday
+        if today.weekday() != 5 and today.weekday() != 6:  # Saturday
             if is_trade_time():
                 futureCrawler.do_crawl()
             else:

@@ -19,4 +19,5 @@ class AliModel(LlmClient):
                                     stream=False,  # 设置输出方式为流式输出
                                     incremental_output=False  # 增量式流式输出
                                     )
+        print(len(messages[0]['content']))
         return responses.output.choices[0]['message']['content']

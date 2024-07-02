@@ -10,6 +10,7 @@ Variables:
 !<INPUT 8>! -- maximum purchasable volume
 !<INPUT 9>! -- currently hold direction
 !<INPUT 10>! -- currently loss or profit
+!<INPUT 11>! -- History daily trading data
 
 
 <commentblockmarker>###</commentblockmarker>
@@ -19,12 +20,12 @@ Variables:
 
 ## 上下文：
 期货商品： !<INPUT 6>!
-当前日期： !<INPUT 0>!
+当前时间： !<INPUT 0>!
 当前价格（人民币）： !<INPUT 1>!
-过去5天的交易数据： !<INPUT 7>!
+过去60分钟的每分钟交易数据： !<INPUT 7>!
+过去10天的每日交易数据： !<INPUT 11>!
 投资目标： !<INPUT 4>!
 风险容忍度： !<INPUT 5>!
-最近一个月的操作摘要：过去10次交易中有10次亏损，总亏损100000元。
 
 !<INPUT 10>!
 

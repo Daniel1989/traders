@@ -1,5 +1,8 @@
+import json
+
 from constants.model import RATION
 from models import Records, Users, Userstatus
+from util.notify import send_message_to_ding
 
 
 def reset():
@@ -59,11 +62,12 @@ class User():
             self.add_record(action, goods, current_price)
             return
         if action.action == 'sell' or action.action == 'buy':
+            send_message_to_ding(action, self.name, current_price)
             self.add_record(action, goods, current_price)
             self.add_status(action, goods, current_price)
             self.money -= action.volume * current_price
-
         if action.action == 'close':
+            send_message_to_ding(action, self.name, current_price)
             self.add_record(action, goods, current_price)
             current_status = query_user_status_info_by_goods(self.id, goods)
             total_profit = (current_price - current_status.price) * current_status.volume * (
@@ -74,6 +78,7 @@ class User():
             print("结算资金为: ", self.money)
 
         if action.action == 'add':
+            send_message_to_ding(action, self.name, current_price)
             self.add_record(action, goods, current_price)
             self.update_status(action, goods, current_price)
             self.money -= action.volume * current_price

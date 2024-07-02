@@ -17,31 +17,16 @@ class Agent:
         user = Users(money=100000, name=self.name, status="alive")
         user.save()
 
-    def handler(self, data):
+    def handler(self, data, daily_data):
         if self.llm.is_chinese:
             name = "白银"
         else:
             name = "silver"
-        history_data_len = 5
-        last5Days = []
-        for index, item in enumerate(data):
-            if len(last5Days) == history_data_len:
-                vol = [float(d[5]) for d in last5Days]
-                mean_vol = sum(vol) / history_data_len
-                if mean_vol > float(item[5]) * 5:
-                    print("\n交易量不到5分之一, 可疑日期，跳过\n")
-                    continue
-                last5Days.pop(0)
-                last5Days.append(item)
-                if 180 < index:
-                    print("开始分析 ", item[0])
-                    try:
-                        self.do_action(item, name, last5Days)
-                    except Exception as e:
-                        print(e)
-                        print("分析出错，跳过", self.name, item[0])
-            else:
-                last5Days.append(item)
+        try:
+            self.do_action(data[len(data) - 1], name, data[:len(data) - 1], daily_data)
+        except Exception as e:
+            print(e)
+            print("分析出错，跳过", self.name, data[len(data) - 1])
 
         return self.history
 
@@ -63,12 +48,15 @@ class Agent:
         plt.savefig('plot.png')
         plt.close()
 
-    def analyze(self, data, daily, goods, max_shares_num, current_position=DEFAULT_POSITION, total_profit=0):
+    def analyze(self, data, daily_data, daily, goods, max_shares_num, current_position=DEFAULT_POSITION, total_profit=0):
         current_price = float(daily[4])
         current_loss = ''
         history_data = ''
+        daily_history_data = ''
         for item in data:
             history_data += f"date: {item[0]}, open: {item[1]}, high: {item[2]}, low: {item[3]}, close: {item[4]}, volume: {item[5]}\n"
+        for item in daily_data:
+            daily_history_data += f"date: {item[0]}, open: {item[1]}, high: {item[2]}, low: {item[3]}, close: {item[4]}, volume: {item[5]}\n"
         if self.llm.is_chinese:
             if total_profit != 0:
                 current_loss = "当前持仓已经产生了" + str(total_profit) + "元的" + (
@@ -80,7 +68,7 @@ class Agent:
             }
             curr_input = [daily[0], current_price, "黄金创造历史新高",
                           "牛市", "短期收益", "高", goods, history_data, max_shares_num, direction[current_position],
-                          current_loss]
+                          current_loss, daily_history_data]
             prompt_lib_file = "prompt_template/ask_clear_action_cn.txt" if current_position != DEFAULT_POSITION else (
                 "prompt_template/ask_action_cn.txt")
         else:
@@ -90,7 +78,7 @@ class Agent:
             curr_input = [daily[0], current_price, "gold create new history high price",
                           "bullish", "short-term profits", "high", goods, history_data, max_shares_num,
                           current_position,
-                          current_loss]
+                          current_loss, daily_history_data]
             prompt_lib_file = "prompt_template/ask_clear_action.txt" if current_position != DEFAULT_POSITION else (
                 "prompt_template/ask_action.txt")
             print("use prompt file", prompt_lib_file)
@@ -111,7 +99,7 @@ class Agent:
             print(error)
             raise error
 
-    def do_action(self, daily, goods, data, retry_num=0):
+    def do_action(self, daily, goods, data, daily_data, retry_num=0):
         current_price = float(daily[4])
         user = query_user(self.name)
         status = query_goods_status(user.id, goods)
@@ -186,13 +174,13 @@ class Agent:
                     print("买一手的钱都没有了:(")
                     # TODO 这里需要更新用户状态为死亡
                     return
-            action = self.analyze(data, daily, goods, max_shares_num, current_position, total_profit)
+            action = self.analyze(data, daily_data, daily, goods, max_shares_num, current_position, total_profit)
             user.action(action, goods, current_price)
         except Exception as e:
             raise e
             # if retry_num < 5:
             #     print(self.llm.model_name, "分析出错，重试", e)
             #     retry_num += 1
-            #     self.do_action(daily, goods, data, retry_num)
+            #     self.do_action(daily, goods, data, daily_data, retry_num)
             # else:
             #     print("重试五次都失败，跳过")

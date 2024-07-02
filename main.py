@@ -1,9 +1,11 @@
+import time
+
 import requests
 from user import reset
 from agent import Agent
 
 from llm.openai_gpt import OpenaiModel
-from llm.llama import Ollama
+# from llm.llama import Ollama
 from llm.google_gpt import GoogleModel
 from llm.baidu import BaiduModal
 from llm.ali import AliModel
@@ -34,8 +36,8 @@ cncoze = CnCozeModal("cncoze")  # # 免费，可用，评分为70分，个人感
 # hunyuan = HunyuanModal("hunyuan-lite") # 免费，但是弱智，返回的值乱写 评分为0分. hunyuan-pro有送，但是也弱智
 # xunfei = XunfeiModel("xunfei") # lite免费，3.5有送的，但是，全部都是弱智，vol乱写，评分为0分
 doubao = DoubaoModel("doubao")  # 不免费，有赠送，但是收费很便宜，可以很低，评分65
-# llm_list = [cncoze, ali, doubao]
-llm_list = [doubao]
+llm_list = [cncoze, ali, doubao]
+# llm_list = [ali]
 
 
 # 目前看，gpt3.5，扣子中文，llama3，阿里云，扣子，DeepseekModal，DoubaoModel
@@ -82,30 +84,40 @@ def save_img(data):
     plt.close()
 
 
-def execution(agent_name, data):
+def execution(agent_name, data, daily_data):
     llm = [item for item in llm_list if item.model_name == agent_name][0]
     agent = Agent(llm)
-    return agent.handler(data)
+    return agent.handler(data, daily_data)
 
 
 if __name__ == '__main__':
     reset()
     results = []
-    history = get_goods_minute_data('AG2408')
+    daily_history_temp = []
+    while True:
+        history = get_goods_minute_data('AG2408')
+        history.reverse()
+        try:
+            url = ("http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol"
+                   "=ag2408")
+            daily_history = requests.get(url).json()
+            if len(daily_history):
+                daily_history_temp = daily_history
+            print(daily_history)
+        except Exception as e:
+            print(e)
+            daily_history = daily_history_temp
+        with ProcessPoolExecutor() as executor:
+            futures = [executor.submit(execution, item.model_name, history[-61:], daily_history[-10:]) for item in llm_list if item.model_name != 'llama3']
+            for future in futures:
+                try:
+                    result = future.result(timeout=10000000)  # Wait for all processes to complete
+                    results.append(result)    # Append the result to the list
+                except TimeoutError:
+                    print(f"Timeout occurred for a task.")
 
-    # url = "http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol=ag2408"
-    # history = requests.get(url).json()
-
-    with ProcessPoolExecutor() as executor:
-        futures = [executor.submit(execution, item.model_name, history) for item in llm_list if item.model_name != 'llama3']
-        for future in futures:
-            try:
-                result = future.result(timeout=10000000)  # Wait for all processes to complete
-                results.append(result)    # Append the result to the list
-            except TimeoutError:
-                print(f"Timeout occurred for a task.")
-
-    # llama3 比较特殊，不知道为什么使用线程池失败
-    # results.append(execution("llama3", history))
-    all_history = merge_lists([item for item in results])
-    save_img(all_history)
+        time.sleep(60)
+        # llama3 比较特殊，不知道为什么使用线程池失败
+        # results.append(execution("llama3", history))
+        # all_history = merge_lists([item for item in results])
+        # save_img(all_history)

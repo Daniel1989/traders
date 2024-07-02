@@ -104,9 +104,7 @@ if __name__ == '__main__':
         try:
             url = ("http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol"
                    "=ag2408")
-            ip_list = get_useable_ip()
-            ip = random.choice(ip_list).ip
-            daily_history = requests.get(url, proxies={"http": ip, "https": ip}).json()
+            daily_history = requests.get(url).json()
             if len(daily_history):
                 daily_history_temp = daily_history
         except Exception as e:

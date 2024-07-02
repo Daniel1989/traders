@@ -1,10 +1,19 @@
+import random
+
 from volcenginesdkarkruntime import Ark
 from dotenv import load_dotenv
 from llm.base import LlmClient
+import os
+
+from service.ip import get_useable_ip
 
 load_dotenv()
 
+ip_list = get_useable_ip()
+ip = random.choice(ip_list).ip
 
+os.environ["http_proxy"] = ip
+os.environ["https_proxy"] = ip
 class DoubaoModel(LlmClient):
     def __init__(self, name):
         super().__init__(name)

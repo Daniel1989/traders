@@ -15,25 +15,27 @@ from llm.hunyuan import HunyuanModal
 from llm.xunfei import XunfeiModel
 from llm.volc import DoubaoModel
 
+from service.futures_data import get_goods_minute_data
+
 from concurrent.futures import ProcessPoolExecutor, TimeoutError
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
-gpt = OpenaiModel("gpt-3.5-turbo")  # 免费，可用，评分为基准60分
-llama = Ollama("llama3")  # 免费，可用, 评分为75分
-# llm3 = GoogleModel("gemini-1.5-pro-latest") # 不免费，目前不可用了
-# llm4 = BaiduModal("ernie-speed-128k") # 免费，可用，评分为40分
+# gpt = OpenaiModel("gpt-3.5-turbo")  # 免费，可用，评分为基准60分
+# llama = Ollama("llama3")  # 免费，可用, 评分为75分
+# google = GoogleModel("gemini-1.5-pro-latest") # 不免费，目前不可用了
+# baidu = BaiduModal("ernie-speed-128k") # 免费，可用，评分为40分
 ali = AliModel("qwen-max")  # 不免费，但是阿里云付费，可用，评分为75分
-# llm6 = KimiModal("moonshot-v1-128k") # 不免费，可用，有赠送的代金劵可用，有RPM为3的限制，需要每个请求sleep30秒，评分为35分
-deepseek = DeepseekModal("deepseek-chat")  # 不免费，可用，有送的，评分为60分
-coze = CozeModal("coze")  # use gpt4 # 不免费，不可用，赠送的token已用光，评分为70分
+# kimi = KimiModal("moonshot-v1-128k") # 不免费，可用，有赠送的代金劵可用，有RPM为3的限制，需要每个请求sleep30秒，评分为35分
+# deepseek = DeepseekModal("deepseek-chat")  # 不免费，可用，有送的，评分为60分
+# coze = CozeModal("coze")  # use gpt4 # 不免费，不可用，赠送的token已用光，评分为70分
 cncoze = CnCozeModal("cncoze")  # # 免费，可用，评分为70分，个人感觉用的就是gpt4吧？
-# llm10 = HunyuanModal("hunyuan-lite") # 免费，但是弱智，返回的值乱写 评分为0分. hunyuan-pro有送，但是也弱智
-# llm11 = XunfeiModel("xunfei") # lite免费，3.5有送的，但是，全部都是弱智，vol乱写，评分为0分
+# hunyuan = HunyuanModal("hunyuan-lite") # 免费，但是弱智，返回的值乱写 评分为0分. hunyuan-pro有送，但是也弱智
+# xunfei = XunfeiModel("xunfei") # lite免费，3.5有送的，但是，全部都是弱智，vol乱写，评分为0分
 doubao = DoubaoModel("doubao")  # 不免费，有赠送，但是收费很便宜，可以很低，评分65
-# llm_list = [gpt, llama, cncoze, ali, deepseek, doubao]
-llm_list = [ali]
+# llm_list = [cncoze, ali, doubao]
+llm_list = [doubao]
 
 
 # 目前看，gpt3.5，扣子中文，llama3，阿里云，扣子，DeepseekModal，DoubaoModel
@@ -89,9 +91,10 @@ def execution(agent_name, data):
 if __name__ == '__main__':
     reset()
     results = []
-    url = "http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol=ag2408"
-    # url = "https://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesMiniKLine5m?symbol=ag2408"
-    history = requests.get(url).json()
+    history = get_goods_minute_data('AG2408')
+
+    # url = "http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol=ag2408"
+    # history = requests.get(url).json()
 
     with ProcessPoolExecutor() as executor:
         futures = [executor.submit(execution, item.model_name, history) for item in llm_list if item.model_name != 'llama3']

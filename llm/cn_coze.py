@@ -11,16 +11,17 @@ from service.ip import get_useable_ip
 load_dotenv()
 api_key = os.environ["COZE_CN"]
 
-ip_list = get_useable_ip()
-ip = random.choice(ip_list).ip
 
-os.environ["http_proxy"] = ip
-os.environ["https_proxy"] = ip
 class CnCozeModal(LlmClient):
     def __init__(self, name):
         super().__init__(name)
 
     def do_prompt(self, prompt_text, system_prompt=None) -> str:
+        ip_list = get_useable_ip()
+        ip = random.choice(ip_list).ip
+
+        os.environ["http_proxy"] = ip
+        os.environ["https_proxy"] = ip
         header = {
             "Authorization": "Bearer " + api_key,
             "Content-Type": "application/json",

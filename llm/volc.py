@@ -9,17 +9,18 @@ from service.ip import get_useable_ip
 
 load_dotenv()
 
-ip_list = get_useable_ip()
-ip = random.choice(ip_list).ip
 
-os.environ["http_proxy"] = ip
-os.environ["https_proxy"] = ip
 class DoubaoModel(LlmClient):
     def __init__(self, name):
         super().__init__(name)
         self.client = client = Ark(base_url="https://ark.cn-beijing.volces.com/api/v3")
 
     def do_prompt(self, prompt_text, system_prompt=None) -> str:
+        ip_list = get_useable_ip()
+        ip = random.choice(ip_list).ip
+
+        os.environ["http_proxy"] = ip
+        os.environ["https_proxy"] = ip
         response = self.client.chat.completions.create(
             model="ep-20240615044418-lmzkv",
             messages=[

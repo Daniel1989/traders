@@ -109,7 +109,6 @@ if __name__ == '__main__':
             daily_history = requests.get(url, proxies={"http": ip, "https": ip}).json()
             if len(daily_history):
                 daily_history_temp = daily_history
-            print(daily_history)
         except Exception as e:
             print(e)
             daily_history = daily_history_temp

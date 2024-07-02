@@ -1,4 +1,6 @@
 import json
+import traceback
+
 from prompt import generate_prompt
 import re
 from user import Action, query_user, query_goods_status, query_user_status_info_by_goods, User
@@ -26,6 +28,7 @@ class Agent:
             self.do_action(data[len(data) - 1], name, data[:len(data) - 1], daily_data)
         except Exception as e:
             print(e)
+            print(traceback.print_exc())
             print("分析出错，跳过", self.name, data[len(data) - 1])
 
         return self.history

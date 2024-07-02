@@ -8,17 +8,17 @@ from user import reset
 from agent import Agent
 import datetime
 
-from llm.openai_gpt import OpenaiModel
+# from llm.openai_gpt import OpenaiModel
 # from llm.llama import Ollama
-from llm.google_gpt import GoogleModel
-from llm.baidu import BaiduModal
+# from llm.google_gpt import GoogleModel
+# from llm.baidu import BaiduModal
 from llm.ali import AliModel
-from llm.kimi import KimiModal
-from llm.deepseek import DeepseekModal
-from llm.coze import CozeModal
+# from llm.kimi import KimiModal
+# from llm.deepseek import DeepseekModal
+# from llm.coze import CozeModal
 from llm.cn_coze import CnCozeModal
-from llm.hunyuan import HunyuanModal
-from llm.xunfei import XunfeiModel
+# from llm.hunyuan import HunyuanModal
+# from llm.xunfei import XunfeiModel
 from llm.volc import DoubaoModel
 
 from service.futures_data import get_goods_minute_data

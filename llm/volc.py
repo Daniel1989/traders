@@ -13,7 +13,7 @@ load_dotenv()
 class DoubaoModel(LlmClient):
     def __init__(self, name):
         super().__init__(name)
-        self.client = client = Ark(base_url="https://ark.cn-beijing.volces.com/api/v3")
+        self.client = Ark(base_url="https://ark.cn-beijing.volces.com/api/v3")
 
     def do_prompt(self, prompt_text, system_prompt=None) -> str:
         response = self.client.chat.completions.create(

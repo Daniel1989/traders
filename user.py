@@ -13,7 +13,7 @@ def reset():
 
 def query_user(name):
     data = Users.select().where(Users.name == name)
-    print("aaa", name, len(data))
+    print("check user", name, len(data))
     data = data[0]
     user = User(data.id, data.name, data.money, data.status)
     return user

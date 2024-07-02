@@ -100,7 +100,9 @@ class Crawl:
                     page = browser.new_page()
                     try:
                         self.parse_page(page)
+                        browser.close()
                     except Exception as e:
+                        browser.close()
                         print("parse page error", e)
                         traceback.print_exc()
 
@@ -108,7 +110,6 @@ class Crawl:
                     # response = page.evaluate("document.body.textContent")
                     # print(f"Public IP Address: {response}")
                     # user_agent = page.evaluate("navigator.userAgent")
-                    browser.close()
                 except Exception as e:
                     print("执行出错", e)
                     traceback.print_exc()

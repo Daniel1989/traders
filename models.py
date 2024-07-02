@@ -2,15 +2,21 @@ from peewee import *
 import datetime
 from dotenv import load_dotenv
 import os
+from playhouse.shortcuts import ReconnectMixin
 
 load_dotenv()
+
+
+class ReconnectMySQLDatabase(ReconnectMixin, MySQLDatabase):
+    pass
+
 
 db_user = os.getenv("DB_USER")
 db_password = os.getenv("DB_PASSWORD")
 db_host = os.getenv("DB_HOST")
 
-database = MySQLDatabase('futures', user=db_user, password=db_password,
-                         host=db_host, port=3306)
+database = ReconnectMySQLDatabase('futures', user=db_user, password=db_password,
+                                  host=db_host, port=3306)
 
 
 def formatted_datetime_now():

@@ -126,7 +126,7 @@ if __name__ == '__main__':
                 except TimeoutError:
                     print(f"Timeout occurred for a task.")
 
-        time.sleep(60)
+        time.sleep(5 * 60)
         # llama3 比较特殊，不知道为什么使用线程池失败
         # results.append(execution("llama3", history))
         # all_history = merge_lists([item for item in results])

@@ -6,7 +6,7 @@ import requests
 from service.ip import get_useable_ip
 from user import reset
 from agent import Agent
-import os
+import datetime
 
 from llm.openai_gpt import OpenaiModel
 # from llm.llama import Ollama
@@ -27,6 +27,8 @@ from concurrent.futures import ProcessPoolExecutor, TimeoutError
 
 import matplotlib.pyplot as plt
 import pandas as pd
+
+from util.utils import is_trade_time
 
 # gpt = OpenaiModel("gpt-3.5-turbo")  # 免费，可用，评分为基准60分
 # llama = Ollama("llama3")  # 免费，可用, 评分为75分
@@ -99,6 +101,11 @@ if __name__ == '__main__':
     results = []
     daily_history_temp = []
     while True:
+        today = datetime.date.today()
+        if today.weekday() == 5 or today.weekday() == 6:
+            continue
+        if not is_trade_time():
+            continue
         history = get_goods_minute_data('AG2408')
         history.reverse()
         try:

@@ -114,8 +114,8 @@ if __name__ == '__main__':
         today = datetime.date.today()
         if today.weekday() == 5 or today.weekday() == 6:
             continue
-        # if not is_trade_time():
-        #     continue
+        if is_trade_time():
+            continue
         history = get_goods_minute_data('AG2408')
         history.reverse()
         try:

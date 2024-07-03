@@ -45,6 +45,15 @@ class Records(BaseModel):
         table_name = 'records'
 
 
+class Startup(BaseModel):
+    uid = CharField()
+    model_name = CharField()
+    agent_name = CharField()
+
+    class Meta:
+        table_name = 'startup'
+
+
 class Users(BaseModel):
     money = IntegerField(null=True)
     name = TextField(null=True, unique=True)
@@ -119,4 +128,4 @@ class Ip(BaseModel):
 
 
 database.connect()
-database.create_tables([GoodsPriceInSecond, Records, Users, Userstatus, Goods, Ip])
+database.create_tables([Startup, GoodsPriceInSecond, Records, Users, Userstatus, Goods, Ip])

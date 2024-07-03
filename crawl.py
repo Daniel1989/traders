@@ -84,7 +84,6 @@ class Crawl:
             info = {}
             for item in price_model_key_list:
                 info[item] = price_detail.pop(0)
-            print("info is", info)
             record = GoodsPriceInSecond(**info)
             record.save()
             time.sleep(5)

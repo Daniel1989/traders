@@ -1,11 +1,18 @@
 from playhouse.migrate import *
+from dotenv import load_dotenv
+import os
 
-my_db = SqliteDatabase('traders.db')
-migrator = SqliteMigrator(my_db)
+load_dotenv()
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_host = os.getenv("DB_HOST")
+database = MySQLDatabase('futures', user=db_user, password=db_password,
+                                  host=db_host, port=3306)
+migrator = MySQLMigrator(database)
 
-cost_time = IntegerField(null=True)
+model_name = CharField(null=True)
 
-with my_db.transaction():
+with database.transaction():
     migrate(
-        migrator.add_column('Ip', 'cost_time', cost_time),
+        migrator.add_column('startup', 'model_name', model_name),
     )

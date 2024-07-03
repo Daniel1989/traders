@@ -8,16 +8,24 @@ from constants.model import DEFAULT_POSITION, RATION
 import matplotlib.pyplot as plt
 import pandas as pd
 from models import Users
+import uuid
 
 
 class Agent:
-    def __init__(self, model):
-        self.name = model.model_name
+    def __init__(self, model, name=None):
+        self.name = model.model_name + "@" + str(uuid.uuid4()) if name is None else name
+        self.modal_name = model.model_name
         self.llm = model
         self.history = []
         print("agent init", self.name)
-        user = Users(money=100000, name=self.name, status="alive")
-        user.save()
+        user = self.get_user(name)
+
+    def get_user(self, name):
+        if name is None:
+            user = Users(money=100000, name=self.name, status="alive")
+            user.save()
+            return user
+        return query_user(name)
 
     def handler(self, data, daily_data):
         if self.llm.is_chinese:

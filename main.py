@@ -3,10 +3,12 @@ import time
 
 import requests
 
+from models import Startup
 from service.ip import get_useable_ip
 from user import reset
 from agent import Agent
 import datetime
+import uuid
 
 # from llm.openai_gpt import OpenaiModel
 # from llm.llama import Ollama
@@ -90,22 +92,30 @@ def save_img(data):
     plt.close()
 
 
-def execution(agent_name, data, daily_data):
+def execution(startup_uid, agent_name, data, daily_data):
     llm = [item for item in llm_list if item.model_name == agent_name][0]
-    agent = Agent(llm)
+    agent_list = Startup.select().where(Startup.uid == startup_uid, Startup.model_name == llm.model_name)
+    if len(agent_list) > 0:
+        agent_name = agent_list[0].agent_name
+        agent = Agent(llm, agent_name)
+    else:
+        agent = Agent(llm)
+        startup_agent = Startup(uid=startup_uid, model_name=llm.model_name, agent_name=agent.name)
+        startup_agent.save()
     return agent.handler(data, daily_data)
 
 
 if __name__ == '__main__':
-    reset()
+    # reset()
+    startup_id = str(uuid.uuid4())
     results = []
     daily_history_temp = []
     while True:
         today = datetime.date.today()
         if today.weekday() == 5 or today.weekday() == 6:
             continue
-        if not is_trade_time():
-            continue
+        # if not is_trade_time():
+        #     continue
         history = get_goods_minute_data('AG2408')
         history.reverse()
         try:
@@ -118,7 +128,7 @@ if __name__ == '__main__':
             print(e)
             daily_history = daily_history_temp
         with ProcessPoolExecutor() as executor:
-            futures = [executor.submit(execution, item.model_name, history[-61:], daily_history[-10:]) for item in llm_list if item.model_name != 'llama3']
+            futures = [executor.submit(execution, startup_id, item.model_name, history[-61:], daily_history[-10:]) for item in llm_list if item.model_name != 'llama3']
             for future in futures:
                 try:
                     result = future.result(timeout=10000000)  # Wait for all processes to complete
@@ -126,7 +136,7 @@ if __name__ == '__main__':
                 except TimeoutError:
                     print(f"Timeout occurred for a task.")
 
-        time.sleep(5 * 60)
+        time.sleep(10)
         # llama3 比较特殊，不知道为什么使用线程池失败
         # results.append(execution("llama3", history))
         # all_history = merge_lists([item for item in results])

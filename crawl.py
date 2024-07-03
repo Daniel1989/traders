@@ -35,7 +35,7 @@ class Crawl:
         self.goods_code = goods_code
         self.status = "init"
         self.retry_num = 0
-        self.proxypool_url = "http://47.96.156.119/proxy/random?token=" + proxy_token
+        self.proxypool_url = "http://localhost:5555/random"
         self.use_proxy = False
 
     def get_random_proxy(self):

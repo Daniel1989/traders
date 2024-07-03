@@ -1,11 +1,7 @@
-import random
 import time
-
 import requests
-
 from models import Startup
-from service.ip import get_useable_ip
-from user import reset
+from service.account import daily_count
 from agent import Agent
 import datetime
 import uuid
@@ -24,13 +20,9 @@ from llm.cn_coze import CnCozeModal
 from llm.volc import DoubaoModel
 
 from service.futures_data import get_goods_minute_data
-
 from concurrent.futures import ProcessPoolExecutor, TimeoutError
 
-import matplotlib.pyplot as plt
-import pandas as pd
-
-from util.utils import is_trade_time
+from util.utils import is_trade_time, is_sync_time
 
 # gpt = OpenaiModel("gpt-3.5-turbo")  # 免费，可用，评分为基准60分
 # llama = Ollama("llama3")  # 免费，可用, 评分为75分
@@ -45,7 +37,6 @@ cncoze = CnCozeModal("cncoze")  # # 免费，可用，评分为70分，个人感
 # xunfei = XunfeiModel("xunfei") # lite免费，3.5有送的，但是，全部都是弱智，vol乱写，评分为0分
 doubao = DoubaoModel("doubao")  # 不免费，有赠送，但是收费很便宜，可以很低，评分65
 llm_list = [cncoze, ali, doubao]
-# llm_list = [ali]
 
 
 # 目前看，gpt3.5，扣子中文，llama3，阿里云，扣子，DeepseekModal，DoubaoModel
@@ -54,42 +45,6 @@ llm_list = [cncoze, ali, doubao]
 
 def item_exists(data_list, field, value):
     return any(item[field] == value for item in data_list)
-
-
-def merge_lists(lists, key='date'):
-    merged_dict = {}
-
-    for lst in lists:
-        for item in lst:
-            item_id = item[key]
-            if item_id not in merged_dict:
-                merged_dict[item_id] = item
-            else:
-                # If the same ID exists, merge the dictionaries, prioritizing the existing fields
-                for k, v in item.items():
-                    if k not in merged_dict[item_id]:
-                        merged_dict[item_id][k] = v
-
-    # Convert merged_dict back to a list of dictionaries
-    merged_list = list(merged_dict.values())
-    return merged_list
-
-
-def save_img(data):
-    df = pd.DataFrame(data)
-    df['date'] = pd.to_datetime(df['date'])
-    plt.figure(figsize=(20, 6))
-    for key in df.columns:
-        if key != 'date':
-            plt.plot(df['date'], df[key], marker='o', label=key)
-
-    plt.xlabel('Date')
-    plt.ylabel('Values')
-    plt.title('account trend')
-    plt.legend()
-    plt.grid(True)
-    plt.savefig('plot.png')
-    plt.close()
 
 
 def execution(startup_uid, agent_name, data, daily_data):
@@ -113,14 +68,19 @@ if __name__ == '__main__':
     while True:
         today = datetime.date.today()
         if today.weekday() == 5 or today.weekday() == 6:
+            time.sleep(5 * 60)
             continue
         if not is_trade_time():
+            if is_sync_time():
+                daily_count()
+            time.sleep(5 * 60)
             continue
         history = get_goods_minute_data('AG2408')
         history.reverse()
         try:
-            url = ("http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol"
-                   "=ag2408")
+            url = (
+                "http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol"
+                "=ag2408")
             daily_history = requests.get(url).json()
             if len(daily_history):
                 daily_history_temp = daily_history
@@ -128,16 +88,14 @@ if __name__ == '__main__':
             print(e)
             daily_history = daily_history_temp
         with ProcessPoolExecutor() as executor:
-            futures = [executor.submit(execution, startup_id, item.model_name, history[-61:], daily_history[-10:]) for item in llm_list if item.model_name != 'llama3']
+            futures = [executor.submit(execution, startup_id, item.model_name, history[-61:], daily_history[-10:]) for
+                       item in llm_list if item.model_name != 'llama3']
             for future in futures:
                 try:
                     result = future.result(timeout=10000000)  # Wait for all processes to complete
-                    results.append(result)    # Append the result to the list
+                    results.append(result)  # Append the result to the list
                 except TimeoutError:
                     print(f"Timeout occurred for a task.")
-
-        time.sleep(60)
+        time.sleep(5 * 60)
         # llama3 比较特殊，不知道为什么使用线程池失败
         # results.append(execution("llama3", history))
-        # all_history = merge_lists([item for item in results])
-        # save_img(all_history)

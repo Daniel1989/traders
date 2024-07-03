@@ -22,6 +22,9 @@ database = ReconnectMySQLDatabase('futures', user=db_user, password=db_password,
 def formatted_datetime_now():
     return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+def formatted_datetime_day():
+    return datetime.datetime.now().strftime('%Y-%m-%d')
+
 
 class UnknownField(object):
     def __init__(self, *_, **__): pass
@@ -127,5 +130,14 @@ class Ip(BaseModel):
         table_name = 'ip'
 
 
+class DailyAccount(BaseModel):
+    account_name = CharField()
+    value = FloatField()
+    date = DateField(default=formatted_datetime_day)
+
+    class Meta:
+        table_name = 'daily_account'
+
+
 database.connect()
-database.create_tables([Startup, GoodsPriceInSecond, Records, Users, Userstatus, Goods, Ip])
+database.create_tables([DailyAccount, Startup, GoodsPriceInSecond, Records, Users, Userstatus, Goods, Ip])

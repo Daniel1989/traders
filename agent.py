@@ -68,19 +68,17 @@ class Agent:
     def get_interval_statement(self, minute_history_data, history_daily_data):
         minute_result, _ = calc_interval(minute_history_data[:-1], is_minute=True)
         daily_result, _ = calc_interval(history_daily_data, is_minute=False)
-        p80_min = min(minute_result.iloc[:, 2].to_list())
-        p80_max = max(minute_result.iloc[:, 5].to_list())
-        p95_min = min(minute_result.iloc[:, 3].to_list())
-        p95_max = max(minute_result.iloc[:, 4].to_list())
+        p95_min = min(minute_result.iloc[:, 2].to_list())
+        p95_max = max(minute_result.iloc[:, 5].to_list())
+        p80_min = min(minute_result.iloc[:, 3].to_list())
+        p80_max = max(minute_result.iloc[:, 4].to_list())
         s1 = ("基于近一年的每日收盘价格，通过使用Auto-Regressive Integrated Moving Average(ARIMA)模型对今日收盘价格进行预测，"
               "得到80%的置性区间为：[" + str(daily_result.iloc[0][3]) + ", " + str(daily_result.iloc[0][4]) + "]。"
-                                                                                                             "95%的置性区间为：[" + str(
-            daily_result.iloc[0][2]) + ", " + str(daily_result.iloc[0][5]) + "]。")
+               "95%的置性区间为：[" + str(daily_result.iloc[0][2]) + ", " + str(daily_result.iloc[0][5]) + "]。")
 
         s2 = ("基于最近6个小时内的每分钟收盘价格，通过使用Auto-Regressive Integrated Moving Average(ARIMA)模型对接下去的一小时内的每分钟收盘价格进行预测，"
               "得到结果如下，有80%的可能价格在[" + str(p80_min) + ", " + str(p80_max) + "]的区间内变动,"
-                                                                                       "95%的的可能价格在[" + str(
-            p95_min) + ", " + str(p95_max) + "]的区间内变动。")
+              "95%的的可能价格在[" + str(p95_min) + ", " + str(p95_max) + "]的区间内变动。")
         return s1 + "同时，" + s2 + "\n"
 
     def forecast_check(self, minute_history_data, history_daily_data):
@@ -89,10 +87,10 @@ class Agent:
 
         minute_result, _ = calc_interval(minute_history_data[:-1], is_minute=True)
         daily_result, _ = calc_interval(history_daily_data, is_minute=False)
-        p80_min = min(minute_result.iloc[:, 2].to_list())
-        p80_max = max(minute_result.iloc[:, 5].to_list())
-        p95_min = min(minute_result.iloc[:, 3].to_list())
-        p95_max = max(minute_result.iloc[:, 4].to_list())
+        p95_min = min(minute_result.iloc[:, 2].to_list())
+        p95_max = max(minute_result.iloc[:, 5].to_list())
+        p80_min = min(minute_result.iloc[:, 3].to_list())
+        p80_max = max(minute_result.iloc[:, 4].to_list())
         content = '白银当前价格' + str(current_price)
         need_send = True
         if current_price <= daily_result.iloc[0][2]:

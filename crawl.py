@@ -35,7 +35,7 @@ class Crawl:
         self.goods_code = goods_code
         self.status = "init"
         self.retry_num = 0
-        self.proxypool_url = "http://47.96.156.119/proxy/random?token=" + proxy_token
+        self.proxypool_url = "http://localhost:5555/random"
         self.use_proxy = False
 
     def get_random_proxy(self):
@@ -98,21 +98,17 @@ class Crawl:
                 try:
                     browser = browser_type.launch()
                     page = browser.new_page()
-                    try:
-                        self.parse_page(page)
-                        browser.close()
-                    except Exception as e:
-                        browser.close()
-                        print("parse page error", e)
-                        traceback.print_exc()
+                    self.parse_page(page)
+                    browser.close()
+                except Exception as e:
+                    browser.close()
+                    print("parse page error", e)
+                    traceback.print_exc()
 
                     # page.goto('https://api.ipify.org?format=json')
                     # response = page.evaluate("document.body.textContent")
                     # print(f"Public IP Address: {response}")
                     # user_agent = page.evaluate("navigator.userAgent")
-                except Exception as e:
-                    print("执行出错", e)
-                    traceback.print_exc()
 
 
 if __name__ == "__main__":
@@ -122,8 +118,8 @@ if __name__ == "__main__":
         if today.weekday() != 5 and today.weekday() != 6:  # Saturday
             if is_trade_time():
                 futureCrawler.do_crawl()
-            else:
-                print("非交易时间")
-        else:
-            print("休市")
+            # else:
+            #     print("非交易时间")
+        # else:
+        #     print("休市")
         time.sleep(60)

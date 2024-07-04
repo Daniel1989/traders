@@ -1,4 +1,4 @@
-from models import GoodsPriceInSecond, database
+from models import GoodsPriceInSecond
 from peewee import fn, Select
 from datetime import datetime
 

@@ -189,7 +189,8 @@ class Agent:
             return
         minute_history = get_goods_minute_data('AG2408')
         # 这里插一个钉钉通知
-        self.forecast_check(minute_history, daily_history)
+        if self.modal_name == 'doubao':
+            self.forecast_check(minute_history, daily_history)
 
         if len(minute_history) > 60:
             return

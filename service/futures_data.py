@@ -54,6 +54,7 @@ def get_goods_minute_data(code):
             (fn.MAX(inner.c.deal_vol) - fn.MIN(inner.c.deal_vol)).alias('volume')
         ).from_(inner)
                  .join(start_end, on=(inner.c.minute_start == start_end.c.minute_start))
+                 .order_by(inner.c.price_time)
                  .group_by(inner.c.minute_start))
 
         # cur = database.cursor()

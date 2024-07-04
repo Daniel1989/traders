@@ -1,10 +1,11 @@
 import time
-import requests
 from models import Startup
 from service.account import daily_count
 from agent import Agent
 import datetime
 import uuid
+from concurrent.futures import ProcessPoolExecutor, TimeoutError
+from util.utils import is_trade_time, is_sync_time
 
 # from llm.openai_gpt import OpenaiModel
 # from llm.llama import Ollama
@@ -19,11 +20,6 @@ from llm.cn_coze import CnCozeModal
 # from llm.xunfei import XunfeiModel
 from llm.volc import DoubaoModel
 
-from service.futures_data import get_goods_minute_data
-from concurrent.futures import ProcessPoolExecutor, TimeoutError
-
-from util.utils import is_trade_time, is_sync_time
-
 # gpt = OpenaiModel("gpt-3.5-turbo")  # 免费，可用，评分为基准60分
 # llama = Ollama("llama3")  # 免费，可用, 评分为75分
 # google = GoogleModel("gemini-1.5-pro-latest") # 不免费，目前不可用了
@@ -36,7 +32,7 @@ cncoze = CnCozeModal("cncoze")  # # 免费，可用，评分为70分，个人感
 # hunyuan = HunyuanModal("hunyuan-lite") # 免费，但是弱智，返回的值乱写 评分为0分. hunyuan-pro有送，但是也弱智
 # xunfei = XunfeiModel("xunfei") # lite免费，3.5有送的，但是，全部都是弱智，vol乱写，评分为0分
 doubao = DoubaoModel("doubao")  # 不免费，有赠送，但是收费很便宜，可以很低，评分65
-llm_list = [cncoze, ali, doubao]
+llm_list = [ali]
 
 
 # 目前看，gpt3.5，扣子中文，llama3，阿里云，扣子，DeepseekModal，DoubaoModel
@@ -47,7 +43,7 @@ def item_exists(data_list, field, value):
     return any(item[field] == value for item in data_list)
 
 
-def execution(startup_uid, agent_name, data, daily_data):
+def execution(startup_uid, agent_name):
     llm = [item for item in llm_list if item.model_name == agent_name][0]
     agent_list = Startup.select().where(Startup.uid == startup_uid, Startup.model_name == llm.model_name)
     if len(agent_list) > 0:
@@ -57,14 +53,13 @@ def execution(startup_uid, agent_name, data, daily_data):
         agent = Agent(llm)
         startup_agent = Startup(uid=startup_uid, model_name=llm.model_name, agent_name=agent.name)
         startup_agent.save()
-    return agent.handler(data, daily_data)
+    return agent.handler()
 
 
 if __name__ == '__main__':
     # reset()
     startup_id = str(uuid.uuid4())
     results = []
-    daily_history_temp = []
     while True:
         today = datetime.date.today()
         if today.weekday() == 5 or today.weekday() == 6:
@@ -75,20 +70,9 @@ if __name__ == '__main__':
                 daily_count()
             time.sleep(5 * 60)
             continue
-        history = get_goods_minute_data('AG2408')
-        history.reverse()
-        try:
-            url = (
-                "http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol"
-                "=ag2408")
-            daily_history = requests.get(url).json()
-            if len(daily_history):
-                daily_history_temp = daily_history
-        except Exception as e:
-            print(e)
-            daily_history = daily_history_temp
+
         with ProcessPoolExecutor() as executor:
-            futures = [executor.submit(execution, startup_id, item.model_name, history[-61:], daily_history[-10:]) for
+            futures = [executor.submit(execution, startup_id, item.model_name) for
                        item in llm_list if item.model_name != 'llama3']
             for future in futures:
                 try:

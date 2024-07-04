@@ -57,6 +57,13 @@ def is_sync_time():
     return is_time_in_range(start_day, end_day)
 
 
+def is_night_time():
+    start_day = datetime.time(21, 0)
+    end_day = datetime.time(23, 59)
+
+    return is_time_in_range(start_day, end_day)
+
+
 def save_img(data):
     last_date = data[-1]['date'].strftime('%Y-%m-%d')
     df = pd.DataFrame(data)
@@ -109,5 +116,4 @@ def draw_daily_account():
         current_date_list.append({"date": item.date, item.account_name: item.value})
     df.append([item for item in current_date_list])
     df = merge_lists(df)
-    print(df)
     save_img(df)

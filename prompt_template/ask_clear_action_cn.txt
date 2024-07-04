@@ -11,6 +11,7 @@ Variables:
 !<INPUT 9>! -- currently hold direction
 !<INPUT 10>! -- currently loss or profit
 !<INPUT 11>! -- History daily trading data
+!<INPUT 12>! -- forecast
 
 
 <commentblockmarker>###</commentblockmarker>
@@ -26,6 +27,8 @@ Variables:
 过去10天的每日交易数据： !<INPUT 11>!
 投资目标： !<INPUT 4>!
 风险容忍度： !<INPUT 5>!
+时间序列预测结果： !<INPUT 12>!
+
 
 !<INPUT 10>!
 

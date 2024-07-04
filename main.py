@@ -46,6 +46,7 @@ def item_exists(data_list, field, value):
 def execution(startup_uid, agent_name):
     llm = [item for item in llm_list if item.model_name == agent_name][0]
     agent_list = Startup.select().where(Startup.uid == startup_uid, Startup.model_name == llm.model_name)
+    print(agent_name, len(agent_list))
     if len(agent_list) > 0:
         agent_name = agent_list[0].agent_name
         agent = Agent(llm, agent_name)

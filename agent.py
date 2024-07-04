@@ -190,9 +190,6 @@ class Agent:
         if self.modal_name == 'doubao':
             self.forecast_check(minute_history, daily_history)
 
-        if len(minute_history) > 60:
-            return
-
         current_item = minute_history[len(minute_history) - 1]
         current_price = float(current_item[4])
         current_time = current_item[0]

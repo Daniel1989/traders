@@ -24,7 +24,7 @@ from llm.volc import DoubaoModel
 # llama = Ollama("llama3")  # 免费，可用, 评分为75分
 # google = GoogleModel("gemini-1.5-pro-latest") # 不免费，目前不可用了
 # baidu = BaiduModal("ernie-speed-128k") # 免费，可用，评分为40分
-ali = AliModel("qwen-max")  # 不免费，但是阿里云付费，可用，评分为75分
+ali = AliModel("qwen-long")  # 不免费，但是阿里云付费，可用，评分为75分
 # kimi = KimiModal("moonshot-v1-128k") # 不免费，可用，有赠送的代金劵可用，有RPM为3的限制，需要每个请求sleep30秒，评分为35分
 # deepseek = DeepseekModal("deepseek-chat")  # 不免费，可用，有送的，评分为60分
 # coze = CozeModal("coze")  # use gpt4 # 不免费，不可用，赠送的token已用光，评分为70分

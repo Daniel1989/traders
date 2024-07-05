@@ -22,6 +22,7 @@ database = ReconnectMySQLDatabase('futures', user=db_user, password=db_password,
 def formatted_datetime_now():
     return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+
 def formatted_datetime_day():
     return datetime.datetime.now().strftime('%Y-%m-%d')
 
@@ -139,5 +140,49 @@ class DailyAccount(BaseModel):
         table_name = 'daily_account'
 
 
+class DailyTraderData(BaseModel):
+    goods = CharField()
+    code_no = IntegerField()
+    date = DateField()
+    open_price = FloatField()
+    highest_price = FloatField()
+    lowest_price = FloatField()
+    close_price = FloatField()
+    compute_price = FloatField()
+    # 当日收盘价-前日结算
+    diff1 = FloatField()
+    # 当日结算-前日结算
+    diff2 = FloatField()
+    deal_vol = IntegerField()
+    amount = FloatField()
+    have_vol = IntegerField()
+    # 涨幅为diff1/前日结算
+    percent = FloatField(default=0)
+    symbol = CharField()
+    exchange = CharField()
+
+    class Meta:
+        table_name = 'daily_trade'
+        indexes = (
+            (("goods", "code_no", "date"), True),
+        )
+
+
+class ForecastInterval(BaseModel):
+    goods_code = CharField()
+    goods_num = IntegerField()
+    forecast_date = DateField()
+    create_time = DateTimeField(default=formatted_datetime_now)
+    origin_price = FloatField()
+    p95_low_price = FloatField()
+    p80_low_price = FloatField()
+    p80_high_price = FloatField()
+    p95_high_price = FloatField()
+
+    class Meta:
+        table_name = 'forecast_interval'
+
+
 database.connect()
-database.create_tables([DailyAccount, Startup, GoodsPriceInSecond, Records, Users, Userstatus, Goods, Ip])
+database.create_tables(
+    [ForecastInterval, DailyTraderData, DailyAccount, Startup, GoodsPriceInSecond, Records, Users, Userstatus, Goods, Ip])

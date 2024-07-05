@@ -1,6 +1,11 @@
-from models import GoodsPriceInSecond
+import datetime
+import time
+
+from models import GoodsPriceInSecond, DailyTraderData, database, ForecastInterval
 from peewee import fn, Select
-from datetime import datetime
+from service.exchange import factory
+from service.fpp3 import calc_interval
+from util.notify import send_common_to_ding
 
 
 def get_goods_minute_data(code):
@@ -11,7 +16,8 @@ def get_goods_minute_data(code):
             GoodsPriceInSecond.price_time,
             GoodsPriceInSecond.current_price.alias('current_price'),
             fn.DATE_FORMAT(GoodsPriceInSecond.price_time, '%Y-%m-%d %H:%i').alias('minute_start'),
-        ).where(GoodsPriceInSecond.uid == code).order_by(GoodsPriceInSecond.price_time.desc()).limit(5000).alias('inner')
+        ).where(GoodsPriceInSecond.uid == code).order_by(GoodsPriceInSecond.price_time.desc()).limit(5000).alias(
+            'inner')
 
         first = (GoodsPriceInSecond.select(
             fn.MIN(inner.c.price_time).alias('first_time'),
@@ -83,3 +89,81 @@ def get_goods_minute_data(code):
     except Exception as e:
         print(e)
         return []
+
+
+def sync_daily_data(dateStr):
+    EXCHANGE_NAME = {
+        'sh': '上海',
+        'zz': '郑州',
+        'dl': '大连',
+        'gz': '广州'
+    }
+    error_exchange = []
+    max_retry = 5
+    retry = 0
+    while True:
+        target = ['sh', 'zz', 'dl', 'gz'] if len(error_exchange) == 0 else [item for item in error_exchange]
+        error_exchange = []
+        for item in target:
+            try:
+                exchange = factory.getExchange(item)
+                exchange.handle4DailyRecord(dateStr)
+                print("同步" + EXCHANGE_NAME[item] + "交易信息完成")
+            except Exception as e:
+                print("同步" + EXCHANGE_NAME[item] + "交易信息出错")
+                error_exchange.append(item)
+                print(e)
+
+        if len(error_exchange) == 0:
+            break
+        else:
+            retry += 1
+            if retry > max_retry:
+                send_common_to_ding("同步数据出错，出错交易所：" + ','.join(error_exchange))
+                break
+            time.sleep(60)
+            continue
+
+
+def get_main_code_no():
+    latest_item = DailyTraderData.select().order_by(DailyTraderData.date.desc()).limit(1).get()
+    sub_query = DailyTraderData.select(DailyTraderData.symbol,
+                                       fn.MAX(DailyTraderData.deal_vol).alias('max_deal_vol')).where(
+        DailyTraderData.date == latest_item.date).group_by(DailyTraderData.symbol)
+    query = DailyTraderData.select().join(sub_query, on=((DailyTraderData.symbol == sub_query.c.symbol) & (
+            DailyTraderData.deal_vol == sub_query.c.max_deal_vol))).where(DailyTraderData.date == latest_item.date)
+    # cur = database.cursor()
+    # print(cur.mogrify(*query.sql()))
+    return [item for item in query]
+
+
+def save_forecast_item(item: DailyTraderData):
+    days = 365  # 用来预测的天数
+    data_list = DailyTraderData.select().where(
+        (DailyTraderData.code_no == item.code_no) & (DailyTraderData.symbol == item.symbol)).limit(days).order_by(
+        DailyTraderData.date.desc()
+    )
+    forecast_day = (data_list[0].date + datetime.timedelta(
+        days=1)).strftime("%Y-%m-%d")
+    exist = ForecastInterval.select().where((ForecastInterval.goods_code == item.symbol)
+                                            & (ForecastInterval.goods_num == item.code_no)
+                                            & (ForecastInterval.forecast_date == forecast_day)).exists()
+    if exist:
+        return item.goods + str(item.code_no) + " 不同步，因为数据已同步"
+
+    df = [[item.date.strftime("%Y-%m-%d"), item.open_price, item.highest_price, item.lowest_price, item.close_price,
+           item.deal_vol] for item in data_list]
+    df.reverse()
+    forecast, _ = calc_interval(df, is_minute=False)
+    data = forecast.iloc[0].to_list()
+    ForecastInterval.create(
+        forecast_date=forecast_day,
+        goods_code=item.symbol,
+        goods_num=item.code_no,
+        origin_price=data[1],
+        p95_low_price=data[2],
+        p80_low_price=data[3],
+        p80_high_price=data[4],
+        p95_high_price=data[5]
+    )
+    return item.goods + str(item.code_no) + " 同步成功"

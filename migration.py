@@ -12,11 +12,15 @@ database = MySQLDatabase('futures', user=db_user, password=db_password,
                                   host=db_host, port=3306)
 migrator = MySQLMigrator(database)
 
-value = FloatField(null=True)
+symbol = CharField(null=True)
+exchange = CharField(null=True)
 
 with database.transaction():
     migrate(
-        migrator.add_column('daily_account', 'value', value),
+        # migrator.add_column('daily_trade', 'symbol', symbol),
+        # migrator.add_column('daily_trade', 'exchange', exchange),
+        migrator.add_index('daily_trade', ['goods', 'code_no', 'date'], True)
+
     )
 
     # Migrate data from old_field to new_field

@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from models import Startup
 from datetime import datetime
 import requests
 from service.fpp3 import calc_interval, draw_interval

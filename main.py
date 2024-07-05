@@ -7,10 +7,11 @@ import uuid
 from concurrent.futures import ProcessPoolExecutor, TimeoutError
 
 from service.fpp3 import calc_interval
-from service.futures_data import get_goods_minute_data
+from service.futures_data import get_goods_minute_data, sync_daily_data, get_main_code_no, save_forecast_item, \
+    is_daily_data_synced
 from util.cache import request
 from util.notify import send_common_to_ding
-from util.utils import is_trade_time, is_sync_time
+from util.utils import is_trade_time, is_sync_time, is_sync_daily_time
 
 # from llm.openai_gpt import OpenaiModel
 # from llm.llama import Ollama
@@ -126,6 +127,14 @@ if __name__ == '__main__':
         if not is_trade_time():
             if is_sync_time():
                 daily_count()
+            if is_sync_daily_time():
+                today_str = datetime.datetime.now().strftime('%Y-%m-%d')
+                if not is_daily_data_synced(today_str):
+                    sync_daily_data(today_str)
+                    main_code_list = get_main_code_no()
+                    for item in main_code_list:
+                        save_forecast_item(item)
+
             time.sleep(5 * 60)
             continue
 

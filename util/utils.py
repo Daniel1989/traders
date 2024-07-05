@@ -57,6 +57,13 @@ def is_sync_time():
     return is_time_in_range(start_day, end_day)
 
 
+def is_sync_daily_time():
+    start_day = datetime.time(16, 0)
+    end_day = datetime.time(17, 0)
+
+    return is_time_in_range(start_day, end_day)
+
+
 def is_night_time():
     start_day = datetime.time(21, 0)
     end_day = datetime.time(23, 59)

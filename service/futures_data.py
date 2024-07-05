@@ -91,6 +91,11 @@ def get_goods_minute_data(code):
         return []
 
 
+def is_daily_data_synced(dateStr):
+    result = DailyTraderData.select().where(DailyTraderData.date == dateStr).exists()
+    return result
+
+
 def sync_daily_data(dateStr):
     EXCHANGE_NAME = {
         'sh': '上海',

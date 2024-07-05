@@ -130,7 +130,7 @@ if __name__ == '__main__':
             if is_sync_daily_time():
                 today_str = datetime.datetime.now().strftime('%Y-%m-%d')
                 if not is_daily_data_synced(today_str):
-                    sync_daily_data(today_str)
+                    sync_daily_data(today_str.replace('-', ""))
                     main_code_list = get_main_code_no()
                     for item in main_code_list:
                         save_forecast_item(item)

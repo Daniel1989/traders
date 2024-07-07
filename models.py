@@ -183,6 +183,21 @@ class ForecastInterval(BaseModel):
         table_name = 'forecast_interval'
 
 
+class MinuteTradeData(BaseModel):
+    goods_code = CharField()
+    contract_number = CharField()
+    open_price = FloatField()
+    high_price = FloatField()
+    low_price = FloatField()
+    close_price = FloatField()
+    deal_vol = FloatField()
+    data_time = DateTimeField()
+    create_time = DateTimeField(default=formatted_datetime_now)
+
+    class Meta:
+        table_name = 'minute_trade_data'
+
+
 database.connect()
 database.create_tables(
-    [ForecastInterval, DailyTraderData, DailyAccount, Startup, GoodsPriceInSecond, Records, Users, Userstatus, Goods, Ip])
+    [MinuteTradeData,ForecastInterval, DailyTraderData, DailyAccount, Startup, GoodsPriceInSecond, Records, Users, Userstatus, Goods, Ip])

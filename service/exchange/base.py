@@ -26,3 +26,6 @@ class Exchange(ABC):
             return NULL_VALUE
         return val
 
+    def crawl_data(self):
+        print("not implement")
+

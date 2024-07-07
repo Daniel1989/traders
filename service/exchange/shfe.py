@@ -2,11 +2,42 @@ from service.exchange.base import Exchange
 import datetime
 import json
 import traceback
+import requests
 
 from models import DailyTraderData
+import time
+
+from util.notify import send_common_to_ding
 
 
 class Shfe(Exchange):
+    def crawl_data(self):
+        try:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
+                'Host': 'www.shfe.com.cn',
+                'Referer': 'https://www.shfe.com.cn/reports/marketdata/delayedquotes/'
+            }
+            res = requests.get('https://www.shfe.com.cn/data/tradedata/future/delaymarket/delaymarket_all.dat?params='+ str(int(time.time() * 1000)), headers=headers)
+            data = json.loads(res.text)
+            flatten_list = [item for sublist in data["delaymarket"] for item in sublist]
+            return [{
+                **item,
+                "open_price": item["openprice"],
+                "high_price": item["highprice"],
+                "low_price": item["lowerprice"],
+                "close_price": item["lastprice"],
+                "deal_vol": item["volume"],
+                "data_time": item["updatetime"],
+                "contract_number": "".join(item["contractname"][-4:]),
+                "goods_code": item["instrumentid"].upper(),
+                "current_price": float(item["lastprice"]),
+            } for item in flatten_list if item["contractname"]!="IMCI"]
+        except Exception as e:
+            send_common_to_ding("获取上海交易所分钟数据出错，出错原因：" + e.__str__())
+            return []
+
+
     def doSave4Record(self, item):
         try:
             DailyTraderData.create(goods=item[0], code_no=item[1], date=item[2], open_price=item[3], highest_price=item[4], \

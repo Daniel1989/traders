@@ -143,12 +143,11 @@ if __name__ == '__main__':
                 "http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol"
                 "=ag2408")
             daily_history = request(url)
+            minute_history = get_goods_minute_data('AG2408')
+            forecast_result = forecast_check(minute_history, daily_history)
         except Exception as e:
             print(e)
             continue
-
-        minute_history = get_goods_minute_data('AG2408')
-        forecast_result = forecast_check(minute_history, daily_history)
         with ProcessPoolExecutor() as executor:
             futures = [executor.submit(execution, startup_id, item.model_name, {
                 "daily_history": daily_history,

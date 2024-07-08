@@ -28,4 +28,5 @@ class Exchange(ABC):
 
     def crawl_data(self):
         print("not implement")
+        return []
 

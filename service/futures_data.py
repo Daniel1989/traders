@@ -208,4 +208,3 @@ def sync_main_code_minute_data(target, alert_data=None):
     # 批量落库
     with database.atomic():
         MinuteTradeData.bulk_create(save_data, batch_size=batch)
-    time.sleep(60)

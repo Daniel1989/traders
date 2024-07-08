@@ -28,7 +28,6 @@ if __name__ == "__main__":
                 "p80_high_price": item.p80_high_price,
                 "p95_high_price": item.p95_high_price
             }
-        with ProcessPoolExecutor() as executor:
-            futures = [executor.submit(sync_main_code_minute_data, item, data) for item in exchange_list]
-            for future in futures:
-                future.result()
+        for item in exchange_list:
+            sync_main_code_minute_data(item, data)
+        time.sleep(60)

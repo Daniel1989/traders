@@ -176,44 +176,36 @@ def save_forecast_item(item: DailyTraderData):
 
 
 def sync_main_code_minute_data(target, alert_data=None):
-    while True:
-        today = datetime.date.today()
-        if today.weekday() == 5 or today.weekday() == 6:
-            break
-        if not is_trade_time():
-            break
-        exchange = factory.getExchange(target)
-        # 获取数据列表
-        data = exchange.crawl_data()
-        # 检查
-        if len(data) > 500:
-            print("数据量过大，批处理不一定成功")
-        save_data = []
-        batch = len(data)
-        for item in data:
-            save_data.append(MinuteTradeData(**item))
-            key = item["goods_code"] + str(item["contract_number"])
-            current_price = item["current_price"]
-            content = ''
-            if key in alert_data:
-                if current_price <= alert_data[key]["p95_low_price"]:
-                    content += ",低于日线级别95%置性区间内的最低值" + str(alert_data[key]["p95_low_price"])
-                elif current_price <= alert_data[key]["p80_low_price"]:
-                    content += ",低于日线级别80%置性区间内的最低值" + str(alert_data[key]["p80_low_price"])
-                elif current_price >= alert_data[key]["p95_high_price"]:
-                    content += ",高于日线级别95%置性区间内的最大值" + str(alert_data[key]["p95_high_price"])
-                elif current_price >= alert_data[key]["p80_high_price"]:
-                    content += ",高于日线级别80%置性区间内的最大值" + str(alert_data[key]["p80_high_price"])
-                if content != '':
-                    content += ("\n区间信息：\nP80[" + str(alert_data[key]["p80_low_price"])
-                                + "-" + str(alert_data[key]["p80_high_price"]) + "]\nP95["
-                                + str(alert_data[key]["p95_low_price"]) + "-"
-                                + str(alert_data[key]["p95_high_price"]) + "]\n")
-                    send_common_to_ding("来自日线检查，合约" + key + "当前价格" + str(current_price) + content)
+    exchange = factory.getExchange(target)
+    # 获取数据列表
+    data = exchange.crawl_data()
+    # 检查
+    if len(data) > 500:
+        print("数据量过大，批处理不一定成功")
+    save_data = []
+    batch = len(data)
+    for item in data:
+        save_data.append(MinuteTradeData(**item))
+        key = item["goods_code"] + str(item["contract_number"])
+        current_price = item["current_price"]
+        content = ''
+        if key in alert_data:
+            if current_price <= alert_data[key]["p95_low_price"]:
+                content += ",低于日线级别95%置性区间内的最低值" + str(alert_data[key]["p95_low_price"])
+            elif current_price <= alert_data[key]["p80_low_price"]:
+                content += ",低于日线级别80%置性区间内的最低值" + str(alert_data[key]["p80_low_price"])
+            elif current_price >= alert_data[key]["p95_high_price"]:
+                content += ",高于日线级别95%置性区间内的最大值" + str(alert_data[key]["p95_high_price"])
+            elif current_price >= alert_data[key]["p80_high_price"]:
+                content += ",高于日线级别80%置性区间内的最大值" + str(alert_data[key]["p80_high_price"])
+            if content != '':
+                content += ("\n区间信息：\nP80[" + str(alert_data[key]["p80_low_price"])
+                            + "-" + str(alert_data[key]["p80_high_price"]) + "]\nP95["
+                            + str(alert_data[key]["p95_low_price"]) + "-"
+                            + str(alert_data[key]["p95_high_price"]) + "]\n")
+                send_common_to_ding("来自日线检查，合约" + key + "当前价格" + str(current_price) + content)
 
-        # 批量落库
-        with database.atomic():
-            MinuteTradeData.bulk_create(save_data, batch_size=batch)
-        time.sleep(60)
-    return []
-
+    # 批量落库
+    with database.atomic():
+        MinuteTradeData.bulk_create(save_data, batch_size=batch)
+    time.sleep(60)

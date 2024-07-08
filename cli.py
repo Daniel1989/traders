@@ -1,4 +1,6 @@
 from dotenv import load_dotenv
+from playwright.sync_api import sync_playwright
+
 from models import Startup
 from datetime import datetime
 import requests
@@ -41,14 +43,52 @@ load_dotenv()
 
 # 同步每日数据
 # dateStr = datetime.now().strftime('%Y%m%d')
-date_list = [
-    '20240704',
-]
-for item in date_list:
-    sync_daily_data(item)
+# date_list = [
+#     '20240704',
+# ]
+# for item in date_list:
+#     sync_daily_data(item)
+#
+# data = get_main_code_no()
+# for item in data:
+#     save_forecast_item(item)
+#     break
 
-data = get_main_code_no()
-for item in data:
-    save_forecast_item(item)
-    break
+def intercept_request(request):
+    print(request.url)
+    # we can update requests with custom headers
+    # request.headers['Accept'] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+    # request.headers['Accept-Encoding'] = "gzip, deflate"
+    # request.headers['Accept-Language'] = "zh-CN,zh;q=0.9"
+    # request.headers['Cache-Control'] = "no-cache"
+    # request.headers['Connection'] = "keep-alive"
 
+    if "secret" in request.url :
+        request.headers['x-secret-token'] = "123"
+        print("patched headers of a secret request")
+    # or adjust sent data
+    if request.method == "POST":
+        request.post_data = "patched"
+        print("patched POST request")
+    return request
+
+def intercept_response(response):
+    print(response.status)
+    # we can extract details from background requests
+    if response.request.resource_type == "xhr":
+        print(response.headers.get('cookie'))
+    return response
+
+with sync_playwright() as p:
+    target = p.chromium
+    for browser_type in [target]:  # p.firefox, p.chromium, p.webkit
+        browser = browser_type.launch(headless=False)
+        page = browser.new_page()
+        page.add_init_script("http://www.site-digger.com/uploads/stealth.min.js")
+        page.on("request", intercept_request)
+        page.on("response", intercept_response)
+        responses = page.goto("http://m.dce.com.cn/webquote/futures_quote_ajax?varietyid=lh")
+        # page.pause()
+        # page.screenshot(path="screenshot.png")
+        print(responses.status)
+        browser.close()

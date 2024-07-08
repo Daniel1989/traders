@@ -1,9 +1,14 @@
+import random
+import time
+
 from models import DailyTraderData
 from service.exchange.base import Exchange
 import datetime
 import requests
 import json
 import traceback
+
+from util.notify import send_common_to_ding
 
 requests.packages.urllib3.util.connection.HAS_IPV6 = False
 
@@ -17,6 +22,56 @@ headers = {
 
 
 class Gzfe(Exchange):
+    def crawl_data(self):
+        try:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
+                'Host': 'www.gfex.com.cn',
+                'Referer': 'http://www.gfex.com.cn/gfex/yshq1/yshq.shtml'
+            }
+            lc = requests.post('http://www.gfex.com.cn/gfexweb/Quote/getQuote_ftr', data={
+                'varietyid': 'lc'
+            }, headers=headers)
+
+            time.sleep(random.randint(5, 10))
+            si = requests.post('http://www.gfex.com.cn/gfexweb/Quote/getQuote_ftr', data={
+                'varietyid': 'si'
+            }, headers=headers)
+            lc_data = json.loads(lc.text)['contractQuote']
+            si_data = json.loads(si.text)['contractQuote']
+            data = []
+            for key in lc_data:
+                item = lc_data[key]
+                data.append({
+                    "open_price": item["openPrice"],
+                    "high_price": item["highPrice"],
+                    "low_price": item["lowPrice"],
+                    "close_price": item["lastPrice"],
+                    "deal_vol": item["matchTotQty"],
+                    "data_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "contract_number": "".join(item["contractID"][-4:]),
+                    "goods_code": "".join(item["contractID"][:2]).upper(),
+                    "current_price": float(item["lastPrice"]) if item["lastPrice"] != '--' else None,
+                })
+            for key in si_data:
+                item = si_data[key]
+                data.append({
+                    "open_price": item["openPrice"],
+                    "high_price": item["highPrice"],
+                    "low_price": item["lowPrice"],
+                    "close_price": item["lastPrice"],
+                    "deal_vol": item["matchTotQty"],
+                    "data_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "contract_number": "".join(item["contractID"][-4:]),
+                    "goods_code": "".join(item["contractID"][:2]).upper(),
+                    "current_price": float(item["lastPrice"]) if item["lastPrice"] != '--' else None,
+                })
+            return data
+        except Exception as e:
+            send_common_to_ding("获取广州交易所分钟数据出错，出错原因：" + e.__str__())
+            return []
+
+
     def getTradeData(self, date_str):
         url = "http://www.gfex.com.cn/u/interfacesWebTiDayQuotes/loadList"
         payload = {

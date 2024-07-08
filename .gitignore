@@ -4,3 +4,4 @@ node_modules
 __pycache__
 .pyc
 daily_data_temp
+demo_fpp3.py

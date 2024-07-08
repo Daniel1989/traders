@@ -48,7 +48,7 @@ def get_goods_minute_data(code):
             last_price.c.last_time,
             last_price.c.current_price.alias('close_price'),
             first_price.c.minute_start,
-        ).from_(last_price).join(first_price, on=(last_price.c.minute_start == first_price.c.minute_start)))
+        ).from_(last_price).join(first_price, on=(last_price.c.minute_start == first_price.c.minute_start))).limit(500)
 
         query = (GoodsPriceInSecond.select(
             inner.c.minute_start,

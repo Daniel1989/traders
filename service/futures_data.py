@@ -9,6 +9,30 @@ from util.notify import send_common_to_ding
 from util.utils import is_trade_time
 
 
+def get_goods_minute_data_by_code(code):
+    try:
+        code_no = code[:2]
+        contract_num = code[2:]
+        query = MinuteTradeData.select().where(MinuteTradeData.goods_code == code_no,
+                                               MinuteTradeData.contract_number == contract_num).order_by(
+            MinuteTradeData.data_time.desc()).limit(60)
+        result = []
+        for record in query:
+            result.append([
+                record.data_time,
+                record.open_price,
+                record.high_price,
+                record.low_price,
+                record.close_price,
+                record.deal_vol
+            ])
+        result.reverse()
+        return result
+    except Exception as e:
+        print(e)
+        return []
+
+
 def get_goods_minute_data(code):
     try:
         inner = GoodsPriceInSecond.select(

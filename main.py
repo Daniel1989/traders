@@ -8,7 +8,7 @@ from concurrent.futures import ProcessPoolExecutor, TimeoutError
 
 from service.fpp3 import calc_interval
 from service.futures_data import get_goods_minute_data, sync_daily_data, get_main_code_no, save_forecast_item, \
-    is_daily_data_synced
+    is_daily_data_synced, get_goods_minute_data_by_code
 from util.cache import request
 from util.notify import send_common_to_ding
 from util.utils import is_trade_time, is_sync_time, is_sync_daily_time
@@ -143,7 +143,8 @@ if __name__ == '__main__':
                 "http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol"
                 "=ag2408")
             daily_history = request(url)
-            minute_history = get_goods_minute_data('AG2408')
+            # minute_history = get_goods_minute_data('AG2408')
+            minute_history = get_goods_minute_data_by_code('AG2408')
             forecast_result = forecast_check(minute_history, daily_history)
         except Exception as e:
             print(e)

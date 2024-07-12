@@ -1,5 +1,5 @@
 import time
-from models import Startup
+from models import Startup, ForecastInterval
 from service.account import daily_count
 from agent import Agent
 import datetime
@@ -63,55 +63,68 @@ def execution(startup_uid, agent_name, analyze_data):
     return agent.handler(analyze_data)
 
 
-def forecast_check(minute_history_data, history_daily_data):
+def forecast_check(minute_history_data,):
     today = minute_history_data[len(minute_history_data) - 1]
     current_price = today[4]
 
-    minute_result, _ = calc_interval(minute_history_data[:-1], is_minute=True)
-    daily_result, _ = calc_interval(history_daily_data, is_minute=False)
-    p95_min = min(minute_result.iloc[:, 2].to_list())
-    p95_max = max(minute_result.iloc[:, 5].to_list())
-    p80_min = min(minute_result.iloc[:, 3].to_list())
-    p80_max = max(minute_result.iloc[:, 4].to_list())
+    # minute_result, _ = calc_interval(minute_history_data[:-1], is_minute=True)
+    # daily_result, _ = calc_interval(history_daily_data, is_minute=False)
+
+    # p95_min = min(minute_result.iloc[:, 2].to_list())
+    # p95_max = max(minute_result.iloc[:, 5].to_list())
+    # p80_min = min(minute_result.iloc[:, 3].to_list())
+    # p80_max = max(minute_result.iloc[:, 4].to_list())
+    forecast_date = ForecastInterval.select().order_by(ForecastInterval.forecast_date.desc()).get()
+    forecast_data = ForecastInterval.select().where(ForecastInterval.forecast_date == forecast_date.forecast_date)
+    data = {}
+    for item in forecast_data:
+        data[item.goods_code + str(item.goods_num)] = {
+            "forecast_date": item.forecast_date,
+            "goods_code": item.goods_code,
+            "goods_num": item.goods_num,
+            "p95_low_price": item.p95_low_price,
+            "p80_low_price": item.p80_low_price,
+            "p80_high_price": item.p80_high_price,
+            "p95_high_price": item.p95_high_price
+        }
     content = '白银当前价格' + str(current_price)
     need_send = True
-    if current_price <= daily_result.iloc[0][2]:
-        content += ",低于日线级别95%置性区间内的最低值" + str(daily_result.iloc[0][2])
-    elif current_price <= daily_result.iloc[0][3]:
-        content += ",低于日线级别80%置性区间内的最低值" + str(daily_result.iloc[0][3])
-    elif current_price >= daily_result.iloc[0][5]:
-        content += ",高于日线级别95%置性区间内的最大值" + str(daily_result.iloc[0][5])
-    elif current_price >= daily_result.iloc[0][4]:
-        content += ",高于日线级别80%置性区间内的最大值" + str(daily_result.iloc[0][4])
-    elif current_price <= p95_min:
-        content += ",低于分钟级别95%置性区间内的最低值" + str(p95_min)
-    elif current_price <= p80_min:
-        content += ",低于分钟级别80%置性区间内的最低值" + str(p80_min)
-    elif current_price >= p95_max:
-        content += ",高于分钟级别95%置性区间内的最大值" + str(p95_max)
-    elif current_price >= p80_max:
-        content += ",高于分钟级别80%置性区间内的最大值" + str(p80_max)
-    else:
-        need_send = False
-    content += "\n区间值详细信息如下:\n"
-    content += "日线80%区间: [" + str(daily_result.iloc[0][3]) + ", " + str(daily_result.iloc[0][4]) + "]\n"
-    content += "日线95%区间: [" + str(daily_result.iloc[0][2]) + ", " + str(daily_result.iloc[0][5]) + "]\n"
-    content += "分钟线80%区间: [" + str(p80_min) + ", " + str(p80_max) + "]\n"
-    content += "分钟线95%区间: [" + str(p95_min) + ", " + str(p95_max) + "]\n"
+    target = data["AG2408"]
+    if current_price <= target["p95_low_price"]:
+        content += ",低于日线级别95%置性区间内的最低值" + str(target["p95_low_price"])
+    elif current_price <= target["p80_low_price"]:
+        content += ",低于日线级别80%置性区间内的最低值" + str(target["p80_low_price"])
+    elif current_price >= target["p95_high_price"]:
+        content += ",高于日线级别95%置性区间内的最大值" + str(target["p95_high_price"])
+    elif current_price >= target["p80_high_price"]:
+        content += ",高于日线级别80%置性区间内的最大值" + str(target["p80_high_price"])
+    # elif current_price <= p95_min:
+    #     content += ",低于分钟级别95%置性区间内的最低值" + str(p95_min)
+    # elif current_price <= p80_min:
+    #     content += ",低于分钟级别80%置性区间内的最低值" + str(p80_min)
+    # elif current_price >= p95_max:
+    #     content += ",高于分钟级别95%置性区间内的最大值" + str(p95_max)
+    # elif current_price >= p80_max:
+    #     content += ",高于分钟级别80%置性区间内的最大值" + str(p80_max)
+    # else:
+    #     need_send = False
+    # content += "\n区间值详细信息如下:\n"
+    # content += "日线80%区间: [" + str(target["p80_low_price"]) + ", " + str(target["p80_high_price"]) + "]\n"
+    # content += "日线95%区间: [" + str(target["p95_low_price"]) + ", " + str(target["p95_high_price"]) + "]\n"
+    #
+    # if need_send:
+    #     send_common_to_ding(content)
 
-    if need_send:
-        send_common_to_ding(content)
-
-    s1 = ("基于近一年的每日收盘价格，通过使用Auto-Regressive Integrated Moving Average(ARIMA)模型对今日收盘价格进行预测，"
-          "得到80%的置性区间为：[" + str(daily_result.iloc[0][3]) + ", " + str(daily_result.iloc[0][4]) + "]。"
+    s1 = ("基于近30天的每日收盘价格，通过使用Auto-Regressive Integrated Moving Average(ARIMA)模型对今日收盘价格进行预测，"
+          "得到80%的置性区间为：[" + str(target["p80_low_price"]) + ", " + str(target["p80_high_price"]) + "]。"
                                                                                                          "95%的置性区间为：[" + str(
-        daily_result.iloc[0][2]) + ", " + str(daily_result.iloc[0][5]) + "]。")
+        target["p95_low_price"]) + ", " + str(target["p95_high_price"]) + "]。")
 
-    s2 = ("基于最近6个小时内的每分钟收盘价格，通过使用Auto-Regressive Integrated Moving Average(ARIMA)模型对接下去的一小时内的每分钟收盘价格进行预测，"
-          "得到结果如下，有80%的可能价格在[" + str(p80_min) + ", " + str(p80_max) + "]的区间内变动,"
-                                                                                   "95%的的可能价格在[" + str(
-        p95_min) + ", " + str(p95_max) + "]的区间内变动。")
-    return s1 + "同时，" + s2 + "\n"
+    # s2 = ("基于最近6个小时内的每分钟收盘价格，通过使用Auto-Regressive Integrated Moving Average(ARIMA)模型对接下去的一小时内的每分钟收盘价格进行预测，"
+    #       "得到结果如下，有80%的可能价格在[" + str(p80_min) + ", " + str(p80_max) + "]的区间内变动,"
+    #                                                                                "95%的的可能价格在[" + str(
+    #     p95_min) + ", " + str(p95_max) + "]的区间内变动。")
+    return s1 + "\n"
 
 
 if __name__ == '__main__':

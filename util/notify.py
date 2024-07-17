@@ -7,8 +7,18 @@ from dotenv import load_dotenv
 load_dotenv()
 DING_TOKEN = os.getenv("DING_TOKEN") or ""
 
+send_history = {}
 
-def send_common_to_ding(content):
+
+def send_common_to_ding(content, target=None):
+    if target is not None:
+        code = target["code"]
+        msg_type = target["type"]
+
+        if code in send_history:
+            if send_history[code] == msg_type:
+                return
+        send_history[code] = msg_type
     url = 'https://oapi.dingtalk.com/robot/send?access_token=' + DING_TOKEN
     try:
         content_with_time = f"时间：{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n内容: {content}"
@@ -24,7 +34,7 @@ def send_common_to_ding(content):
         })
 
 
-def send_message_to_ding(action, name, current_price):
+def send_action_msg_to_ding(action, name, current_price):
     url = 'https://oapi.dingtalk.com/robot/send?access_token=' + DING_TOKEN
     # 发送HTTP POST请求
     try:

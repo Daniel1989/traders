@@ -214,21 +214,29 @@ def sync_main_code_minute_data(target, alert_data=None):
             key = item["goods_code"] + str(item["contract_number"])
             current_price = item["current_price"]
             content = ''
+            msg_type = ''
             if key in alert_data:
                 if current_price <= alert_data[key]["p95_low_price"]:
+                    msg_type = 'p95_low_price'
                     content += ",低于日线级别95%置性区间内的最低值" + str(alert_data[key]["p95_low_price"])
                 elif current_price <= alert_data[key]["p80_low_price"]:
+                    msg_type = 'p80_low_price'
                     content += ",低于日线级别80%置性区间内的最低值" + str(alert_data[key]["p80_low_price"])
                 elif current_price >= alert_data[key]["p95_high_price"]:
+                    msg_type = 'p95_high_price'
                     content += ",高于日线级别95%置性区间内的最大值" + str(alert_data[key]["p95_high_price"])
                 elif current_price >= alert_data[key]["p80_high_price"]:
+                    msg_type = 'p80_high_price'
                     content += ",高于日线级别80%置性区间内的最大值" + str(alert_data[key]["p80_high_price"])
                 if content != '':
                     content += ("\n区间信息：\nP80[" + str(alert_data[key]["p80_low_price"])
                                 + "-" + str(alert_data[key]["p80_high_price"]) + "]\nP95["
                                 + str(alert_data[key]["p95_low_price"]) + "-"
                                 + str(alert_data[key]["p95_high_price"]) + "]\n")
-                    send_common_to_ding("来自日线检查，合约" + key + "当前价格" + str(current_price) + content)
+                    send_common_to_ding("来自日线检查，合约" + key + "当前价格" + str(current_price) + content, {
+                        "code": item["goods_code"],
+                        "type": msg_type
+                    })
 
         # 批量落库
         with database.atomic():

@@ -44,6 +44,7 @@ class Records(BaseModel):
     type = TextField(null=True)
     user_id = IntegerField(null=True)
     volume = IntegerField(null=True)
+    create_time = DateTimeField(default=formatted_datetime_now)
 
     class Meta:
         table_name = 'records'

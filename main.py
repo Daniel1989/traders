@@ -133,23 +133,23 @@ if __name__ == '__main__':
     startup_id = "4a283c5d-3f43-42ca-a369-69a918e74ce9"
     results = []
     while True:
-        # today = datetime.date.today()
-        # if today.weekday() == 5 or today.weekday() == 6:
-        #     time.sleep(5 * 60)
-        #     continue
-        # if not is_trade_time():
-        #     if is_sync_time():
-        #         daily_count()
-        #     if is_sync_daily_time():
-        #         today_str = datetime.datetime.now().strftime('%Y-%m-%d')
-        #         if not is_daily_data_synced(today_str):
-        #             sync_daily_data(today_str.replace('-', ""))
-        #             main_code_list = get_main_code_no()
-        #             for item in main_code_list:
-        #                 save_forecast_item(item)
-        #
-        #     time.sleep(5 * 60)
-        #     continue
+        today = datetime.date.today()
+        if today.weekday() == 5 or today.weekday() == 6:
+            time.sleep(5 * 60)
+            continue
+        if not is_trade_time():
+            if is_sync_time():
+                daily_count()
+            if is_sync_daily_time():
+                today_str = datetime.datetime.now().strftime('%Y-%m-%d')
+                if not is_daily_data_synced(today_str):
+                    sync_daily_data(today_str.replace('-', ""))
+                    main_code_list = get_main_code_no()
+                    for item in main_code_list:
+                        save_forecast_item(item)
+
+            time.sleep(5 * 60)
+            continue
 
         try:
             # url = (

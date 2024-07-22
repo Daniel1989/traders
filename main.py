@@ -38,7 +38,7 @@ cncoze = CnCozeModal("cncoze")  # # 免费，可用，评分为70分，个人感
 # hunyuan = HunyuanModal("hunyuan-lite") # 免费，但是弱智，返回的值乱写 评分为0分. hunyuan-pro有送，但是也弱智
 # xunfei = XunfeiModel("xunfei") # lite免费，3.5有送的，但是，全部都是弱智，vol乱写，评分为0分
 doubao = DoubaoModel("doubao")  # 不免费，有赠送，但是收费很便宜，可以很低，评分65
-llm_list = [ali, cncoze, doubao]
+llm_list = [cncoze, doubao]
 
 
 # 目前看，gpt3.5，扣子中文，llama3，阿里云，扣子，DeepseekModal，DoubaoModel

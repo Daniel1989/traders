@@ -107,7 +107,7 @@ class Agent:
                 "prompt_template/ask_action.txt")
             print("use prompt file", prompt_lib_file)
         prompt = generate_prompt(curr_input, prompt_lib_file)
-        print(prompt)
+        # print(prompt)
         res = self.llm.do_prompt(prompt)
         try:
             matches = re.findall(r'\{([^{}]*)\}', res)
@@ -115,7 +115,7 @@ class Agent:
             json_data = json.loads("{" + cleaned_json_string + "}")
             json_data["origin_response"] = res
             json_data["date_str"] = daily[0]
-            print(json_data)
+            # print(json_data)
             return Action(**json_data)
 
         except Exception as error:

@@ -33,6 +33,28 @@ def get_goods_minute_data_by_code(code):
         return []
 
 
+def get_goods_daily_data(name, code_no):
+    try:
+        query = DailyTraderData.select().where(DailyTraderData.goods == name,
+                                               DailyTraderData.code_no == code_no).order_by(
+            DailyTraderData.date.desc()).limit(10)
+        result = []
+        for record in query:
+            result.append([
+                record.date.strftime("%Y-%m-%d"),
+                record.open_price,
+                record.highest_price,
+                record.lowest_price,
+                record.close_price,
+                record.deal_vol
+            ])
+        result.reverse()
+        return result
+    except Exception as e:
+        print(e)
+        return []
+
+
 def get_goods_minute_data(code):
     try:
         inner = GoodsPriceInSecond.select(
@@ -243,4 +265,3 @@ def sync_main_code_minute_data(target, alert_data=None):
             MinuteTradeData.bulk_create(save_data, batch_size=batch)
     except Exception as e:
         print(e)
-

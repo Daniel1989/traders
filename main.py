@@ -8,7 +8,7 @@ from concurrent.futures import ProcessPoolExecutor, TimeoutError
 
 from service.fpp3 import calc_interval
 from service.futures_data import get_goods_minute_data, sync_daily_data, get_main_code_no, save_forecast_item, \
-    is_daily_data_synced, get_goods_minute_data_by_code
+    is_daily_data_synced, get_goods_minute_data_by_code, get_goods_daily_data
 from util.cache import request
 from util.notify import send_common_to_ding
 from util.utils import is_trade_time, is_sync_time, is_sync_daily_time
@@ -63,7 +63,7 @@ def execution(startup_uid, agent_name, analyze_data):
     return agent.handler(analyze_data)
 
 
-def forecast_check(minute_history_data,):
+def forecast_check(minute_history_data):
     today = minute_history_data[len(minute_history_data) - 1]
     current_price = today[4]
 
@@ -133,32 +133,33 @@ if __name__ == '__main__':
     startup_id = "4a283c5d-3f43-42ca-a369-69a918e74ce9"
     results = []
     while True:
-        today = datetime.date.today()
-        if today.weekday() == 5 or today.weekday() == 6:
-            time.sleep(5 * 60)
-            continue
-        if not is_trade_time():
-            if is_sync_time():
-                daily_count()
-            if is_sync_daily_time():
-                today_str = datetime.datetime.now().strftime('%Y-%m-%d')
-                if not is_daily_data_synced(today_str):
-                    sync_daily_data(today_str.replace('-', ""))
-                    main_code_list = get_main_code_no()
-                    for item in main_code_list:
-                        save_forecast_item(item)
-
-            time.sleep(5 * 60)
-            continue
+        # today = datetime.date.today()
+        # if today.weekday() == 5 or today.weekday() == 6:
+        #     time.sleep(5 * 60)
+        #     continue
+        # if not is_trade_time():
+        #     if is_sync_time():
+        #         daily_count()
+        #     if is_sync_daily_time():
+        #         today_str = datetime.datetime.now().strftime('%Y-%m-%d')
+        #         if not is_daily_data_synced(today_str):
+        #             sync_daily_data(today_str.replace('-', ""))
+        #             main_code_list = get_main_code_no()
+        #             for item in main_code_list:
+        #                 save_forecast_item(item)
+        #
+        #     time.sleep(5 * 60)
+        #     continue
 
         try:
-            url = (
-                "http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol"
-                "=ag2408")
-            daily_history = request(url)
-            # minute_history = get_goods_minute_data('AG2408')
-            minute_history = get_goods_minute_data_by_code('AG2408')
-            forecast_result = forecast_check(minute_history, daily_history)
+            # url = (
+            #     "http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol"
+            #     "=ag2408")
+            # daily_history = request(url)
+            daily_history = get_goods_daily_data('白银', '2408')
+            minute_history = get_goods_minute_data('AG2408')
+            # minute_history = get_goods_minute_data_by_code('AG2408')
+            forecast_result = forecast_check(minute_history)
         except Exception as e:
             print(e)
             continue

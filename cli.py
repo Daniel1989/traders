@@ -23,10 +23,10 @@ load_dotenv()
 
 # forecast预测
 # url = ("http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol"
-#                 "=ag2408")
+#                 "=ag2412")
 # daily_history = requests.get(url).json()
 # result, _ = calc_interval(daily_history)
-# data = get_goods_minute_data("AG2408")
+# data = get_goods_minute_data("AG2412")
 # result_minute, origin_data = calc_interval(data, is_minute=True)
 # p95_min = min(result_minute.iloc[:, 2].to_list())
 # p95_max = max(result_minute.iloc[:, 5].to_list())

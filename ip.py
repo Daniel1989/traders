@@ -91,7 +91,7 @@ class Crawl:
 
 
 if __name__ == "__main__":
-    goods = "AG2408"
+    goods = "AG2412"
     futureCrawler = Crawl("https://finance.sina.com.cn/futures/quotes", goods)
     while True:
         futureCrawler.do_crawl(use_proxy=True)

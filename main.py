@@ -89,7 +89,7 @@ def forecast_check(minute_history_data):
         }
     content = '白银当前价格' + str(current_price)
     need_send = True
-    target = data["AG2408"]
+    target = data["AG2412"]
     if current_price <= target["p95_low_price"]:
         content += ",低于日线级别95%置性区间内的最低值" + str(target["p95_low_price"])
     elif current_price <= target["p80_low_price"]:
@@ -152,13 +152,8 @@ if __name__ == '__main__':
             continue
 
         try:
-            # url = (
-            #     "http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesDailyKLine?symbol"
-            #     "=ag2408")
-            # daily_history = request(url)
-            daily_history = get_goods_daily_data('白银', '2408')
-            minute_history = get_goods_minute_data('AG2408')
-            # minute_history = get_goods_minute_data_by_code('AG2408')
+            daily_history = get_goods_daily_data('白银', '2412')
+            minute_history = get_goods_minute_data('AG2412')
             forecast_result = forecast_check(minute_history)
         except Exception as e:
             print(e)

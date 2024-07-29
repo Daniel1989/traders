@@ -33,11 +33,11 @@ def query_goods_status(user_id, goods):
 
 def query_user_status_info_by_goods(user_id, goods):
     status = Userstatus.select().where(
-        Userstatus.user_id.in_([user_id]) & Userstatus.goods.in_([goods]) & (Userstatus.is_clear == 0))
+        Userstatus.user_id.in_([user_id]) & Userstatus.goods.in_([goods]) & (Userstatus.is_clear == 0)).order_by(Userstatus.open_date.desc())
     if len(status) == 0:
         return None
-    if len(status) > 1:
-        raise Exception("多条" + goods + "持仓记录")
+    # if len(status) > 1:
+    #     raise Exception("多条" + goods + "持仓记录")
     return status[0]
 
 

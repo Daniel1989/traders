@@ -1,5 +1,8 @@
 import time
-from models import Startup, ForecastInterval
+
+import requests
+
+from models import Startup, ForecastInterval, Wenhua
 from service.account import daily_count
 from agent import Agent
 import datetime
@@ -117,7 +120,7 @@ def forecast_check(minute_history_data):
 
     s1 = ("基于近30天的每日收盘价格，通过使用Auto-Regressive Integrated Moving Average(ARIMA)模型对今日收盘价格进行预测，"
           "得到80%的置性区间为：[" + str(target["p80_low_price"]) + ", " + str(target["p80_high_price"]) + "]。"
-                                                                                                         "95%的置性区间为：[" + str(
+                                                                                                          "95%的置性区间为：[" + str(
         target["p95_low_price"]) + ", " + str(target["p95_high_price"]) + "]。")
 
     # s2 = ("基于最近6个小时内的每分钟收盘价格，通过使用Auto-Regressive Integrated Moving Average(ARIMA)模型对接下去的一小时内的每分钟收盘价格进行预测，"
@@ -127,9 +130,26 @@ def forecast_check(minute_history_data):
     return s1 + "\n"
 
 
+def sync_wenhua():
+    today_str = datetime.datetime.now().strftime('%Y-%m-%d')
+    try:
+        exist_item = Wenhua.select().where(Wenhua.create_time >= today_str)
+        if exist_item.exists():
+            print("已存在数据，跳过")
+            return
+        data = requests.get('https://www.wenhua.com.cn/api/dataapi/GetWHProduct')
+        for item in data.json()['data']:
+            Wenhua.create(name=item['Variety'], new=item['New'], delta_price=item['Deltaprice'],
+                          increase=item['Increase'])
+    except Exception as e:
+        print("同步文华数据出错")
+        print(e)
+
+
 if __name__ == '__main__':
     # reset()
     # startup_id = str(uuid.uuid4())
+
     startup_id = "4a283c5d-3f43-42ca-a369-69a918e74ce9"
     results = []
     while True:
@@ -141,6 +161,7 @@ if __name__ == '__main__':
             if is_sync_time():
                 daily_count()
             if is_sync_daily_time():
+                sync_wenhua()
                 today_str = datetime.datetime.now().strftime('%Y-%m-%d')
                 if not is_daily_data_synced(today_str):
                     sync_daily_data(today_str.replace('-', ""))
@@ -171,5 +192,6 @@ if __name__ == '__main__':
                 except TimeoutError:
                     print(f"Timeout occurred for a task.")
         time.sleep(5 * 60)
-        # llama3 比较特殊，不知道为什么使用线程池失败
-        # results.append(execution("llama3", history))
+
+    # llama3 比较特殊，不知道为什么使用线程池失败
+    # results.append(execution("llama3", history))

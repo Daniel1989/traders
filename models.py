@@ -198,7 +198,15 @@ class MinuteTradeData(BaseModel):
     class Meta:
         table_name = 'minute_trade_data'
 
+class Wenhua(BaseModel):
+    name = TextField()
+    new = FloatField()
+    delta_price = FloatField()
+    increase = FloatField()
+    create_time = DateTimeField(default=formatted_datetime_now)
+    class Meta:
+        table_name = 'wenhua'
 
 database.connect()
 database.create_tables(
-    [MinuteTradeData,ForecastInterval, DailyTraderData, DailyAccount, Startup, GoodsPriceInSecond, Records, Users, Userstatus, Goods, Ip])
+    [Wenhua, MinuteTradeData,ForecastInterval, DailyTraderData, DailyAccount, Startup, GoodsPriceInSecond, Records, Users, Userstatus, Goods, Ip])

@@ -21,3 +21,6 @@ python migration.py
 https://github.com/Python3WebSpider/ProxyPool
 
 playwright install
+
+## fastapi
+uvicorn app.main:app --reload --port 8080

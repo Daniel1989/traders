@@ -26,7 +26,6 @@ grpcio-status==1.62.2
 h11==0.14.0
 httpcore==1.0.5
 httplib2==0.22.0
-httpx==0.26.0
 idna==3.7
 jsonpatch==1.33
 jsonpointer==2.4
@@ -52,7 +51,7 @@ pydantic_core==2.18.2
 pyee==11.1.0
 pyparsing==3.1.2
 python-dateutil==2.9.0.post0
-python-dotenv==1.0.1
+python-dotenv>=1.0.0
 pytz==2024.1
 PyYAML==6.0.1
 requests==2.32.2
@@ -75,3 +74,9 @@ volcengine-python-sdk==1.0.87
 websocket-client==1.8.0
 websockets==12.0
 yarl==1.9.4
+fastapi>=0.104.0
+uvicorn>=0.24.0
+celery>=5.3.4
+redis>=5.0.1
+sqlmodel>=0.0.8
+mysqlclient>=2.2.0

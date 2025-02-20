@@ -2,7 +2,7 @@ from typing import Optional
 from datetime import datetime
 from sqlmodel import Field, SQLModel
 from decimal import Decimal
-from sqlalchemy import Column, DECIMAL
+from sqlalchemy import Column, DECIMAL, PrimaryKeyConstraint
 
 class Goods(SQLModel, table=True):
     """Futures goods model"""
@@ -14,10 +14,15 @@ class Goods(SQLModel, table=True):
 
 class GoodsPriceInSecond(SQLModel, table=True):
     """Futures price record model"""
-    id: Optional[int] = Field(default=None, primary_key=True)
+    __table_args__ = (
+        PrimaryKeyConstraint('id', 'created_at'),
+    )
+    
+    id: int = Field()  # Part of composite primary key
     uid: str = Field(index=True)  # Symbol identifier (e.g., ag2504)
-    goods: int = Field(foreign_key="goods.id")  # Reference to Goods table
+    goods: str  # Changed from int to str, removed foreign key
     price_time: str
+    created_at: datetime = Field(default_factory=datetime.now)  # Part of composite primary key
     
     # Use SQLAlchemy Column for decimal fields
     current_price: Decimal = Field(sa_column=Column(DECIMAL(10, 2)))
@@ -35,5 +40,4 @@ class GoodsPriceInSecond(SQLModel, table=True):
     buy_price_oncall: Decimal = Field(sa_column=Column(DECIMAL(10, 2)))
     sell_price_oncall: Decimal = Field(sa_column=Column(DECIMAL(10, 2)))
     buy_vol: int
-    sell_vol: int
-    created_at: datetime = Field(default_factory=datetime.now) 
+    sell_vol: int 

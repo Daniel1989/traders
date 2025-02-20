@@ -86,10 +86,30 @@ def parse_price_data(page: Page, symbol: str, goods_id: int) -> Optional[Dict]:
 
         # Save to database using SQLModel
         with Session(engine) as session:
-            price_record = GoodsPriceInSecond(**info)
+            # Get max id for the current day
+            today = datetime.datetime.now().date()
+            today_start = datetime.datetime.combine(today, datetime.time.min)
+            today_end = datetime.datetime.combine(today, datetime.time.max)
+            
+            statement = select(GoodsPriceInSecond).where(
+                GoodsPriceInSecond.created_at.between(today_start, today_end)
+            ).order_by(GoodsPriceInSecond.id.desc())
+            last_record = session.exec(statement).first()
+            
+            # Set the next id
+            next_id = (last_record.id + 1) if last_record else 1
+            
+            # Create and save the record without refresh
+            price_record = GoodsPriceInSecond(
+                id=next_id,
+                **info
+            )
             session.add(price_record)
             session.commit()
-            session.refresh(price_record)
+            # Remove the refresh call since we don't need it
+            
+            # Update the info with the generated id
+            info['id'] = next_id
 
         return info
 

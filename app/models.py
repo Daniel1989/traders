@@ -8,6 +8,7 @@ class Goods(SQLModel, table=True):
     """Futures goods model"""
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(index=True)
+    title: Optional[str] = None  # Added title field with default None
     description: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)

@@ -12,6 +12,7 @@ from app.models import Goods
 # Add request model
 class GoodsCreate(BaseModel):
     name: str
+    title: str | None = None
     description: str | None = None
 
 app = FastAPI(title="FastAPI Celery Example")
@@ -87,7 +88,11 @@ async def create_goods(
 ) -> Dict:
     """Create a new goods entry"""
     try:
-        goods = Goods(name=goods_data.name, description=goods_data.description)
+        goods = Goods(
+            name=goods_data.name,
+            title=goods_data.title,
+            description=goods_data.description
+        )
         session.add(goods)
         session.commit()
         session.refresh(goods)
@@ -95,6 +100,7 @@ async def create_goods(
         return {
             "id": goods.id,
             "name": goods.name,
+            "title": goods.title,
             "description": goods.description,
             "created_at": goods.created_at.isoformat(),
             "updated_at": goods.updated_at.isoformat()
@@ -111,7 +117,11 @@ async def list_goods(
     session: Session = Depends(get_session)
 ) -> List[Dict]:
     """List all goods"""
-    # Use SQLModel select instead of query
     statement = select(Goods)
     goods = session.exec(statement).all()
-    return [{"id": g.id, "name": g.name, "description": g.description} for g in goods] 
+    return [{
+        "id": g.id,
+        "name": g.name,
+        "title": g.title,
+        "description": g.description
+    } for g in goods] 

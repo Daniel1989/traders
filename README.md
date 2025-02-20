@@ -24,3 +24,9 @@ playwright install
 
 ## fastapi
 uvicorn app.main:app --reload --port 8080
+
+## 初始化数据库
+python -m app.init_db --drop
+
+## 迁移数据库
+python -m app.migrations
